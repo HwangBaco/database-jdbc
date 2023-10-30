@@ -70,11 +70,15 @@ class SubFrame extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == addBtn) {
+            //"정보 추가하기" 버튼 클릭시 수행
             if (!checkNotNullFields()) {
+                //fname, lname, ssn에 아무것도 입력되지 않았다면 명령 거부(NOT NULL)
                 JOptionPane.showMessageDialog(this, "Fname, Lname, Ssn에는 값이 들어가야 합니다.");
             } else if(!isValidDate()) {
+                //Bdate가 yyyy-mm-dd 형식이 아니라면 명령 거부(DATE 형 속성)
                 JOptionPane.showMessageDialog(this, "생일에는 yyyy-mm-dd 형식이 들어가야 합니다.");
             } else {
+                //제약조건 만족시 INSERT 명령 수행
                 accDb();
                 insertEmployeeData();
                 dispose();
@@ -83,6 +87,7 @@ class SubFrame extends JFrame implements ActionListener {
     }
 
     private boolean checkNotNullFields() {
+        //NOT NULL 제약이 걸려있는 부분 검사
         for (int i = 0; i < 10; i++) {
             if(i==0 || i==2 || i==3) {
                 if (fields[i] == null || fields[i].getText().isEmpty()) {
@@ -94,6 +99,8 @@ class SubFrame extends JFrame implements ActionListener {
     }
 
     private boolean isValidDate() {
+        //Bdate에 yyyy-mm-dd 형식이 올바르게 들어갔는지 검사
+        //null 허용이므로 null이라면 true 반환
         if(fields[4]==null || fields[4].getText().isEmpty()) return true;
 
         String date = fields[4].getText();
@@ -109,9 +116,11 @@ class SubFrame extends JFrame implements ActionListener {
     }
 
     private void accDb() {
+        //db 연결 부분
         String url = "jdbc:mysql://localhost:3306/company_forhw?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC";
         String acct = "root";
-        String passwrd = "newabt12!";
+        String passwrd = "";
+        //url, acct, passwrd는 본인 환경대로 수정
         try {
             conn = DriverManager.getConnection(url, acct, passwrd);
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -121,16 +130,19 @@ class SubFrame extends JFrame implements ActionListener {
     }
 
     private void insertEmployeeData() {
-        String firstName = fields[0].getText();
+        //INSERT 명령 수행
+        //각 label에서 값 가져와서 sql문 작성에 활용
+        String firstName = fields[0].getText(); //NOT NULL
         String middleInitial = fields[1].getText();
-        String lastName = fields[2].getText();
-        String ssn = fields[3].getText();
+        String lastName = fields[2].getText(); //NOT NULL
+        String ssn = fields[3].getText(); //NOT NULL
         String birthdate = fields[4].getText();
         String address = fields[5].getText();
         String sex = (String) sexCategory.getSelectedItem();
-        double salary = Double.parseDouble(fields[7].getText());
+        double salary = Double.parseDouble(fields[7].getText()); //DECIMAL(10, 2)
         String super_ssn = fields[8].getText();
         int dno = (fields[9] != null && !fields[9].getText().isEmpty()) ? Integer.parseInt(fields[9].getText()) : 1;
+        //dno NOT NULL DEFAULT 1 -> fields[9]에 아무것도 입력되지 않았다면 1로 설정
 
         try {
             sql = "INSERT INTO EMPLOYEE (fname, minit, lname, ssn, bdate, address, sex, salary, super_ssn, dno) " +
@@ -151,13 +163,13 @@ class SubFrame extends JFrame implements ActionListener {
             int rowsAffected = p.executeUpdate();
 
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "Employee information added successfully");
+                JOptionPane.showMessageDialog(this, "직원 정보 추가 성공");
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to add employee information");
+                JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
-        } finally {
+        } finally { //명령 수행 후 DB 연결 종료
             if (conn != null) {
                 try {
                     conn.close();
