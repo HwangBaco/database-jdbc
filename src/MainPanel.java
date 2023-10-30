@@ -1,11 +1,14 @@
 package src;
 
+import src.JDBC.JDBC;
+
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -27,6 +30,12 @@ public class MainPanel extends JFrame {
     JPanel categoryPanel, itemPanel, employeePanel,headcountPanel, updatePanel, deletePanel, insertPanel;
     JPanel topPanel, btmPanel, bottomPanel;
 
+    // 사용자에 따라 id, password 변경
+    private static final String dbacct = "root";
+    private static final String passwrd = "ghd!0427";
+    private static final String dbname = "company";
+    JDBC jdbc = new JDBC(dbacct, passwrd, dbname);
+
     MainPanel() {
         searchBtn = new JButton("검색");
         sumLabel = new JLabel("뭘 선택?");
@@ -45,6 +54,9 @@ public class MainPanel extends JFrame {
         topPanel = setTop(categoryPanel, itemPanel);
         btmPanel = halfBottom(headcountPanel, updatePanel, deletePanel, insertPanel);
         bottomPanel = setBottom(btmPanel, employeePanel);
+
+        jdbc.connectJDBC();
+
     }
 
     public JPanel getTopPanel(){
@@ -268,7 +280,10 @@ public class MainPanel extends JFrame {
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource() == searchBtn) {
-            //검색 버튼 누르면
+            //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
+            jdbc.connectJDBC();
+            jdbc.printReport(items);
+            jdbc.disconnectJDBC();
         } else if (e.getSource() == updateBtn) {
             //업데이트 버튼 누르면
         } else if (e.getSource() == deleteBtn) {
