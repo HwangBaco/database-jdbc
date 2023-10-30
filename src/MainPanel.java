@@ -67,6 +67,7 @@ public class MainPanel extends JFrame {
                 else if(e.getItem() == items[4]) 		sumLabel.setText(item[4] + "선택");
                 else if(e.getItem() == items[5]) 		sumLabel.setText(item[5] + "선택");
                 else if(e.getItem() == items[6]) 		sumLabel.setText(item[6] + "선택");
+                else if(e.getItem() == items[7])        sumLabel.setText(item[7] + "선택");
             }
         }
     }
