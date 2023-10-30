@@ -69,13 +69,43 @@ class SubFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        //디비에 값 넣기
-        //pk에 널값이 들어오면 오류 띄우기
         if (e.getSource() == addBtn) {
-            accDb();
-            insertEmployeeData();
+            if (!checkNotNullFields()) {
+                JOptionPane.showMessageDialog(this, "Fname, Lname, Ssn에는 값이 들어가야 합니다.");
+            } else if(!isValidDate()) {
+                JOptionPane.showMessageDialog(this, "생일에는 yyyy-mm-dd 형식이 들어가야 합니다.");
+            } else {
+                accDb();
+                insertEmployeeData();
+                dispose();
+            }
         }
-        dispose();
+    }
+
+    private boolean checkNotNullFields() {
+        for (int i = 0; i < 10; i++) {
+            if(i==0 || i==2 || i==3) {
+                if (fields[i] == null || fields[i].getText().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isValidDate() {
+        if(fields[4]==null || fields[4].getText().isEmpty()) return true;
+
+        String date = fields[4].getText();
+        char[] dateArr = date.toCharArray();
+
+        if(date.length() != 10) return false;
+        if(dateArr[4] != '-' || dateArr[7] != '-') return false;
+        for(int i=0; i<10; i++) {
+            if(i==4 || i==7) continue;
+            if(!Character.isDigit(dateArr[i])) return false;
+        }
+        return true;
     }
 
     private void accDb() {
@@ -100,45 +130,39 @@ class SubFrame extends JFrame implements ActionListener {
         String sex = (String) sexCategory.getSelectedItem();
         double salary = Double.parseDouble(fields[7].getText());
         String super_ssn = fields[8].getText();
-        int dno = Integer.parseInt(fields[9].getText()); // Assuming dno is an integer
+        int dno = (fields[9] != null && !fields[9].getText().isEmpty()) ? Integer.parseInt(fields[9].getText()) : 1;
 
         try {
-            // Define the SQL INSERT statement using a prepared statement
-            String insertQuery = "INSERT INTO EMPLOYEE (fname, minit, lname, ssn, bdate, address, sex, salary, super_ssn, dno) " +
+            sql = "INSERT INTO EMPLOYEE (fname, minit, lname, ssn, bdate, address, sex, salary, super_ssn, dno) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            PreparedStatement preparedStatement = conn.prepareStatement(insertQuery);
-            preparedStatement.setString(1, firstName);
-            preparedStatement.setString(2, middleInitial);
-            preparedStatement.setString(3, lastName);
-            preparedStatement.setString(4, ssn);
-            preparedStatement.setString(5, birthdate);
-            preparedStatement.setString(6, address);
-            preparedStatement.setString(7, sex);
-            preparedStatement.setDouble(8, salary);
-            preparedStatement.setString(9, super_ssn);
-            preparedStatement.setInt(10, dno);
+            PreparedStatement p = conn.prepareStatement(sql);
+            p.setString(1, firstName);
+            p.setString(2, middleInitial);
+            p.setString(3, lastName);
+            p.setString(4, ssn);
+            p.setString(5, birthdate);
+            p.setString(6, address);
+            p.setString(7, sex);
+            p.setDouble(8, salary);
+            p.setString(9, super_ssn);
+            p.setInt(10, dno);
 
-            // Execute the INSERT statement
-            int rowsAffected = preparedStatement.executeUpdate();
+            int rowsAffected = p.executeUpdate();
 
             if (rowsAffected > 0) {
-                // Insert was successful
                 JOptionPane.showMessageDialog(this, "Employee information added successfully");
             } else {
-                // Insert failed
                 JOptionPane.showMessageDialog(this, "Failed to add employee information");
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
-            // Handle the exception
         } finally {
             if (conn != null) {
                 try {
                     conn.close();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
-                    // Handle the exception
                 }
             }
         }
