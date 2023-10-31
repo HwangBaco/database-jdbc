@@ -10,11 +10,13 @@ public class JDBC {
     private final JDBCConnect jdbcConnect;
     private final JDBCPrintReport jdbcPrintReport;
     private final JDBCInsertEmployeeData jdbcInsertEmployeeData;
+    private final JDBCDeleteEmployeeData jdbcDeleteEmployeeData;
 
     public JDBC(String user, String password, String dbname){
         jdbcConnect = new JDBCConnect(user, password, dbname);
         jdbcPrintReport = new JDBCPrintReport();
         jdbcInsertEmployeeData = new JDBCInsertEmployeeData();
+        jdbcDeleteEmployeeData = new JDBCDeleteEmployeeData();
     }
 
     public void connectJDBC() {
@@ -44,9 +46,11 @@ public class JDBC {
         return model;
     }
 
-    public void insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory){
-        jdbcInsertEmployeeData.insertEmployeeData(fields, sexCategory, conn);
+    public boolean insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory){
+        return jdbcInsertEmployeeData.insertEmployeeData(fields, sexCategory, conn);
     }
 
-
+    public boolean deleteEmployee(JTextField jTextField, JComboBox jComboBox1, JComboBox jComboBox2, boolean[] booleans, JComboBox jComboBox3) {
+        return jdbcDeleteEmployeeData.deleteEmployee(jTextField, jComboBox1, jComboBox2, booleans, jComboBox3, conn);
+    }
 }

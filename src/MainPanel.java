@@ -16,15 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.SQLException;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 public class MainPanel extends JFrame implements MouseListener {
     JButton searchBtn, updateBtn, deleteBtn, insertBtn;
@@ -38,6 +30,11 @@ public class MainPanel extends JFrame implements MouseListener {
     JTable table = new JTable(this.model);
     JPanel categoryPanel, itemPanel, employeePanel,headcountPanel, updatePanel, deletePanel, insertPanel;
     JPanel topPanel, btmPanel, bottomPanel;
+
+    JTextField text;
+    JComboBox sex;
+    JComboBox department;
+    JComboBox<String> categoryCombo;
 
     // 사용자에 따라 id, password 변경
     private static final String dbacct = "root";
@@ -76,14 +73,14 @@ public class MainPanel extends JFrame implements MouseListener {
 
     public JPanel setCategory(){
         JPanel categoryPanel = new JPanel();
-        JComboBox<String> categoryCombo = new JComboBox<String>(category);
+        categoryCombo = new JComboBox<String>(category);
         categoryPanel.add(new JLabel("검색범위  "));
         categoryPanel.add(categoryCombo);
         categoryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JTextField text = new JTextField(20);
-        JComboBox sex = new JComboBox<String>(sexs);
-        JComboBox department = new JComboBox<String>(departments);
+        text = new JTextField(20);
+        sex = new JComboBox<String>(sexs);
+        department = new JComboBox<String>(departments);
 
         categoryPanel.add(text);
         categoryPanel.add(sex);
@@ -316,7 +313,17 @@ public class MainPanel extends JFrame implements MouseListener {
         } else if (e.getSource() == updateBtn) {
             //업데이트 버튼 누르면
         } else if (e.getSource() == deleteBtn) {
+            boolean[] boolArray = {false, false, false};
+            boolArray[0] = text.isVisible();
+            boolArray[1] = sex.isVisible();
+            boolArray[2] = department.isVisible();
+
             // 삭제 버튼 누르면
+            jdbc.connectJDBC();
+            if(jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo))
+                JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
+            else JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
+            jdbc.disconnectJDBC();
         } else if (e.getSource() == insertBtn) {
             if (sf == null) {
                 sf = new SubFrame();
@@ -327,4 +334,3 @@ public class MainPanel extends JFrame implements MouseListener {
         }
     }
 }
-

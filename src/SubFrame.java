@@ -84,7 +84,9 @@ class SubFrame extends JFrame implements ActionListener {
             } else {
                 //제약조건 만족시 jdbc 연결 후 INSERT 명령 수행 후 연결해제
                 jdbc.connectJDBC();
-                jdbc.insertEmployeeData(fields, sexCategory);
+                if(jdbc.insertEmployeeData(fields, sexCategory))
+                    JOptionPane.showMessageDialog(this, "직원 정보 추가 성공");
+                else JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
                 jdbc.disconnectJDBC();
                 dispose();
             }
