@@ -1,6 +1,8 @@
 package src;
 
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -24,7 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class MainPanel extends JFrame {
+public class MainPanel extends JFrame implements MouseListener {
     JButton searchBtn, updateBtn, deleteBtn, insertBtn;
     JLabel sumLabel;
     JCheckBox[] items;
@@ -33,6 +35,7 @@ public class MainPanel extends JFrame {
     final String[] sexs = {"M", "F"};
     String[] departments = {"Research", "Administration", "Headquarters"};
     DefaultTableModel model = new DefaultTableModel(0, 0);
+    JTable table = new JTable(this.model);
     JPanel categoryPanel, itemPanel, employeePanel,headcountPanel, updatePanel, deletePanel, insertPanel;
     JPanel topPanel, btmPanel, bottomPanel;
 
@@ -44,7 +47,6 @@ public class MainPanel extends JFrame {
 
     MainPanel() {
         searchBtn = new JButton("검색");
-        sumLabel = new JLabel("뭘 선택?");
         updateBtn = new JButton("update");
         deleteBtn = new JButton("선택한 데이터 삭제");
         insertBtn = new JButton("직원 등록");
@@ -118,13 +120,11 @@ public class MainPanel extends JFrame {
 
     public JPanel setItems(){
         JPanel itemPanel = new JPanel();
-        //MyItemListener listener = new MyItemListener();
 
         itemPanel.add(new JLabel("검색항목  "));
         for(int i=0;i<item.length; i++){
             items[i] = new JCheckBox(item[i]);
             itemPanel.add(items[i]);
-            //items[i].addItemListener(listener);
         }
         itemPanel.add(searchBtn);
 
@@ -146,8 +146,8 @@ public class MainPanel extends JFrame {
 
     public JPanel setTable(){
         JPanel tablePanel = new JPanel();
-        JTable table = new JTable(this.model);
-        JScrollPane scrollPane = new JScrollPane(table);
+        JScrollPane scrollPane = new JScrollPane(this.table);
+        table.addMouseListener(this);
         scrollPane.setPreferredSize(new Dimension(950, 300));
         tablePanel.add(scrollPane);
         return tablePanel;
@@ -280,6 +280,27 @@ public class MainPanel extends JFrame {
         bottom.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
 
         return bottom;
+    }
+
+    //MouseListener override 함수
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        int row = table.getSelectedRow();
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            System.out.print(table.getModel().getValueAt(row, i )+"\t"); //삭제할 때 필요한 record 정보
+        } }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+    @Override
+    public void mouseExited(MouseEvent e) {
     }
 
 
