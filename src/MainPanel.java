@@ -2,6 +2,7 @@ package src;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -19,7 +20,7 @@ public class MainPanel extends JFrame {
     JButton searchBtn, updateBtn, deleteBtn, insertBtn;
     String[] departmentStrings = {"Research", "Administration", "Headquarters"};
     JPanel categoryPanel, itemPanel, employeePanel,headcountPanel, updatePanel, deletePanel, insertPanel;
-    JPanel topPanel, btmPanel, bottomPanel;
+    JPanel topPanel, halfBottomPanel, halfBottom;
 
     MainPanel() {
         searchBtn = new JButton("검색");
@@ -37,16 +38,31 @@ public class MainPanel extends JFrame {
         insertPanel = getInsertItemPanel();
 
         // 구역별 sub Panels 위치
-        topPanel = setTop(categoryPanel, itemPanel);
-        btmPanel = halfBottom(headcountPanel, updatePanel, deletePanel, insertPanel);
-        bottomPanel = setBottom(btmPanel, employeePanel);
+        ArrayList<JPanel> topPanels = new ArrayList<>();
+        topPanels.add(categoryPanel);
+        topPanels.add(itemPanel);
+        topPanel = setTop(topPanels);
+
+        ArrayList<JPanel> halfBottomPanels = new ArrayList<>();
+        halfBottomPanels.add(headcountPanel);
+        halfBottomPanels.add(updatePanel);
+        halfBottomPanels.add(deletePanel);
+        halfBottomPanels.add(insertPanel);
+        halfBottom = setHalfBottom(halfBottomPanels);
+
+
+        ArrayList<JPanel> bottomPanels = new ArrayList<>();
+        bottomPanels.add(halfBottom);
+        bottomPanels.add(employeePanel);
+
+        halfBottomPanel = setBottom(bottomPanels);
     }
 
     public JPanel getTopPanel(){
         return this.topPanel;
     }
     public JPanel getBottomPanel(){
-        return this.bottomPanel;
+        return this.halfBottom;
     }
 
 
@@ -218,33 +234,34 @@ public class MainPanel extends JFrame {
         return insertPanel;
     }
 
-    public JPanel setTop(JPanel categoryPanel, JPanel itemPanel){
+    public JPanel setTop(ArrayList<JPanel> panels){
         JPanel top = new JPanel();
+        for (JPanel panel : panels) {
+            top.add(panel);
+        }
         top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS)); // 패널 세로정렬
-        top.add(categoryPanel);
-        top.add(itemPanel);
         top.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
         return top;
     }
 
-    public JPanel halfBottom(JPanel headCountPanel, JPanel updatePanel, JPanel deletePanel, JPanel insertPanel){
+    public JPanel setHalfBottom(ArrayList<JPanel> panels){
         JPanel bottomPanel = new JPanel();
-        bottomPanel.add(headCountPanel);
-        bottomPanel.add(updatePanel);
-        bottomPanel.add(deletePanel);
-        bottomPanel.add(insertPanel);
+        for (JPanel panel : panels) {
+            bottomPanel.add(panel);
+        }
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
         return bottomPanel;
     }
 
-    public JPanel setBottom(JPanel bottomPanel, JPanel selectedEmployeePanel){
-        JPanel bottom = new JPanel();
-        bottom.add(selectedEmployeePanel);
-        bottom.add(bottomPanel);
-        bottom.setLayout(new BoxLayout(bottom, BoxLayout.Y_AXIS));
-        bottom.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+    public JPanel setBottom(ArrayList<JPanel> panels){
+        JPanel bottomPanel = new JPanel();
+        for (JPanel panel : panels) {
+            bottomPanel.add(panel);
+        }
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
 
-        return bottom;
+        return bottomPanel;
     }
 
 
