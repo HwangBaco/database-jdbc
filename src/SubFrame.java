@@ -21,8 +21,8 @@ class SubFrame extends JFrame implements ActionListener {
     // SubFrame에서 JDBC 클래스를 사용하기 위한 변수 생성 및 인스턴스 생성
     // 사용자에 따라 id, password 변경
     private static final String dbacct = "root";
-    private static final String passwrd = "12345";
-    private static final String dbname = "company";
+    private static final String passwrd = "1234";
+    private static final String dbname = "company_forhw";
     JDBC jdbc = new JDBC(dbacct, passwrd, dbname);
 
     public SubFrame() {
@@ -84,7 +84,9 @@ class SubFrame extends JFrame implements ActionListener {
             } else {
                 //제약조건 만족시 jdbc 연결 후 INSERT 명령 수행 후 연결해제
                 jdbc.connectJDBC();
-                jdbc.insertEmployeeData(fields, sexCategory);
+                if(jdbc.insertEmployeeData(fields, sexCategory))
+                    JOptionPane.showMessageDialog(this, "직원 정보 추가 성공");
+                else JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
                 jdbc.disconnectJDBC();
                 dispose();
             }

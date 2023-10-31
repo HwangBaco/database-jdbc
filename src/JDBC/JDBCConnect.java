@@ -10,7 +10,7 @@ public class JDBCConnect {
     private final String password;
 
     public JDBCConnect(String user, String password, String dbname){
-        this.url = "jdbc:mysql://localhost:3306/" + dbname + "?servertimezone=UTC url";
+        this.url = "jdbc:mysql://localhost:3306/"+ dbname + "?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC";
         this.user = user;
         this.password = password;
     }
