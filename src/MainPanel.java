@@ -1,15 +1,10 @@
 package src;
 
-import java.awt.FlowLayout;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,31 +12,31 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class MainPanel extends JFrame {
+    final String[] SEARCH_RANGES = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
+    final String[] SEARCH_ITEMS = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
+    final String[] SEX = {"M", "F"};
+
     JButton searchBtn, updateBtn, deleteBtn, insertBtn;
-    JLabel sumLabel;
-    JCheckBox[] items;
-    final String[] category = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
-    final String[] item = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
-    final String[] sexs = {"M", "F"};
-    String[] departments = {"Research", "Administration", "Headquarters"};
+    String[] departmentStrings = {"Research", "Administration", "Headquarters"};
     JPanel categoryPanel, itemPanel, employeePanel,headcountPanel, updatePanel, deletePanel, insertPanel;
     JPanel topPanel, btmPanel, bottomPanel;
 
     MainPanel() {
         searchBtn = new JButton("검색");
-        sumLabel = new JLabel("뭘 선택?");
         updateBtn = new JButton("update");
         deleteBtn = new JButton("선택한 데이터 삭제");
         insertBtn = new JButton("직원 등록");
-        items = new JCheckBox[8];
 
-        categoryPanel = setCategory();
-        itemPanel = setItems();
-        employeePanel = setEmployees();
-        headcountPanel = setHeadCounts();
-        updatePanel = setUpdate();
-        deletePanel = setDelete();
-        insertPanel = setInsert();
+        // 메인 패널에 추가될 sub Panels
+        categoryPanel = getSearchRangePanel();
+        itemPanel = getSearchItemPanel();
+        employeePanel = getSelectedEmpPanel();
+        headcountPanel = getHeadCounts();
+        updatePanel = getUpdateItemPanel();
+        deletePanel = getDeleteItemPanel();
+        insertPanel = getInsertItemPanel();
+
+        // 구역별 sub Panels 위치
         topPanel = setTop(categoryPanel, itemPanel);
         btmPanel = halfBottom(headcountPanel, updatePanel, deletePanel, insertPanel);
         bottomPanel = setBottom(btmPanel, employeePanel);
@@ -54,171 +49,160 @@ public class MainPanel extends JFrame {
         return this.bottomPanel;
     }
 
-    class MyItemListener implements ItemListener {
-        // 체크 박스 선택이 될 때, 얘가 이벤트가 발생함을 알아차림
-        @Override
-        public void itemStateChanged(ItemEvent e) {
-            // 체크가 되었을 때
-            if(e.getStateChange() == ItemEvent.SELECTED) {
-                if(e.getItem() == items[0]) 		sumLabel.setText(item[0] + "선택");
-                else if(e.getItem() == items[1]) 		sumLabel.setText(item[1] + "선택");
-                else if(e.getItem() == items[2]) 		sumLabel.setText(item[2] + "선택");
-                else if(e.getItem() == items[3]) 		sumLabel.setText(item[3] + "선택");
-                else if(e.getItem() == items[4]) 		sumLabel.setText(item[4] + "선택");
-                else if(e.getItem() == items[5]) 		sumLabel.setText(item[5] + "선택");
-                else if(e.getItem() == items[6]) 		sumLabel.setText(item[6] + "선택");
-                else if(e.getItem() == items[7])        sumLabel.setText(item[7] + "선택");
-            }
-        }
-    }
 
-    public JPanel setCategory(){
-        JPanel categoryPanel = new JPanel();
-        JComboBox<String> categoryCombo = new JComboBox<String>(category);
-        categoryPanel.add(new JLabel("검색범위  "));
-        categoryPanel.add(categoryCombo);
-        categoryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+    // 컴색 범위 텍스트 + 드랍박스 injection
+    public JPanel getSearchRangePanel(){
+        JPanel searchRangePanel = new JPanel();
+        JComboBox<String> searchRangeComboBox = new JComboBox<>(SEARCH_RANGES);
+        searchRangePanel.add(new JLabel("검색범위  "));
+        searchRangePanel.add(searchRangeComboBox);
+        searchRangePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JTextField text = new JTextField(20);
-        JComboBox sex = new JComboBox<String>(sexs);
-        JComboBox department = new JComboBox<String>(departments);
+        JTextField searchTextBox = new JTextField(20);
+        JComboBox<String> sexComboBox = new JComboBox<>(this.SEX);
+        JComboBox<String> departmentComboBox = new JComboBox<>(departmentStrings);
 
-        categoryPanel.add(text);
-        categoryPanel.add(sex);
-        categoryPanel.add(department);
+        searchRangePanel.add(searchTextBox);
+        searchRangePanel.add(sexComboBox);
+        searchRangePanel.add(departmentComboBox);
 
-        text.setVisible(false);
-        sex.setVisible(false);
-        department.setVisible(false);
+        searchTextBox.setVisible(false);
+        sexComboBox.setVisible(false);
+        departmentComboBox.setVisible(false);
 
-        categoryCombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedIndex = categoryCombo.getSelectedIndex();
-                if (selectedIndex == 5) { //Sex
-                    text.setVisible(false);
-                    sex.setVisible(true);
-                    department.setVisible(false);
-                }
-                else if(selectedIndex == 8){ //Department
-                    text.setVisible(false);
-                    sex.setVisible(false);
-                    department.setVisible(true);
-                }
-                else{
-                    text.setVisible(true);
-                    sex.setVisible(false);
-                    department.setVisible(false);
-                }
+        searchRangeComboBox.addActionListener(e -> {
+            int selectedIndex = searchRangeComboBox.getSelectedIndex();
+            if (selectedIndex == 0) { // 전체
+                searchTextBox.setVisible(false);
+                sexComboBox.setVisible(false);
+                departmentComboBox.setVisible(false);
+            } else if (selectedIndex == 5) { //Sex
+                searchTextBox.setVisible(false);
+                sexComboBox.setVisible(true);
+                departmentComboBox.setVisible(false);
+            } else if(selectedIndex == 8){ //Department
+                searchTextBox.setVisible(false);
+                sexComboBox.setVisible(false);
+                departmentComboBox.setVisible(true);
+            } else{
+                searchTextBox.setVisible(true);
+                sexComboBox.setVisible(false);
+                departmentComboBox.setVisible(false);
             }
         });
 
-        return categoryPanel;
+        return searchRangePanel;
     }
 
-    public JPanel setItems(){
-        JPanel itemPanel = new JPanel();
-        MyItemListener listener = new MyItemListener();
+    public JPanel getSearchItemPanel(){
+        JPanel searchItemPanel = new JPanel();
+        JLabel searchItemLabel = new JLabel("검색항목  ");
 
-        itemPanel.add(new JLabel("검색항목  "));
-        for(int i=0;i<item.length; i++){
-            items[i] = new JCheckBox(item[i]);
-            itemPanel.add(items[i]);
-            items[i].addItemListener(listener);
+        searchItemPanel.add(searchItemLabel);
+
+        for (String searchItem : SEARCH_ITEMS) {
+            searchItemPanel.add(new Checkbox(searchItem));
         }
-        itemPanel.add(sumLabel);
-        itemPanel.add(searchBtn);
 
-        itemPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        searchItemPanel.add(searchBtn);
 
+        searchItemPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         searchBtn.addActionListener(this::actionPerformed);
-        return itemPanel;
+
+        return searchItemPanel;
     }
 
-    public JPanel setEmployees(){
+    /* ----- 231031 16:39 검토 완료 ----- */
+
+    /*
+    * 입력시 이벤트 관리 필요
+    * */
+    public JPanel getSelectedEmpPanel(){
         JPanel selectedEmployeePanel = new JPanel();
 
-        JLabel selected = new JLabel("선택한 직원 :  ");
+        JLabel selectedEmpLabel = new JLabel("선택한 직원 :  ");
         String employee = ""; // 나중에 입력
-        JLabel employees = new JLabel(employee);
+        JLabel selectedEmps = new JLabel(employee);
 
+        // apply font
         Font font = new Font("SansSerif", Font.BOLD, 20);
-        selected.setFont(font);
-        employees.setFont(font);
+        selectedEmpLabel.setFont(font);
+        selectedEmps.setFont(font);
 
-        selectedEmployeePanel.add(selected);
-        selectedEmployeePanel.add(employees);
+        //
+        selectedEmployeePanel.add(selectedEmpLabel);
+        selectedEmployeePanel.add(selectedEmps);
 
         selectedEmployeePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         return selectedEmployeePanel;
     }
 
-    public JPanel setHeadCounts(){
+    /*
+     * 입력시 이벤트 관리 필요
+     * */
+    public JPanel getHeadCounts(){
         JPanel headCountPanel = new JPanel();
 
-        JLabel employeeHeadCount = new JLabel("인원수 :  ");
-        JLabel count = new JLabel();
+        JLabel headCountLabel = new JLabel("인원수 :  ");
+        JLabel headCounts = new JLabel();
 
-        headCountPanel.add(employeeHeadCount);
-        headCountPanel.add(count);
+        headCountPanel.add(headCountLabel);
+        headCountPanel.add(headCounts);
 
         headCountPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         return headCountPanel;
     }
 
-    public JPanel setUpdate(){
-        JPanel updatePanel = new JPanel();
+    public JPanel getUpdateItemPanel(){
+        JPanel updateItemPanel = new JPanel();
+        JLabel updateItemLabel = new JLabel("수정 ");
 
-        JLabel modify = new JLabel("수정");
-        JComboBox<String> updateCombo = new JComboBox<String>(item);
+        JComboBox<String> updateItemComboBox = new JComboBox<>(SEARCH_ITEMS);
 
-        JTextField modifyText = new JTextField(20);
-        JComboBox sex = new JComboBox<String>(sexs);
-        JComboBox department = new JComboBox<String>(departments);
+        JTextField updateTextBox = new JTextField(20);
+        JComboBox<String> sexComboBox = new JComboBox<>(this.SEX);
+        JComboBox<String> departmentComboBox = new JComboBox<>(departmentStrings);
 
-        updatePanel.add(modify);
-        updatePanel.add(updateCombo);
-        updatePanel.add(modifyText);
-        updatePanel.add(sex);
-        updatePanel.add(department);
-        updatePanel.add(updateBtn);
+        updateItemPanel.add(updateItemLabel);
+        updateItemPanel.add(updateItemComboBox);
+        updateItemPanel.add(updateTextBox);
+        updateItemPanel.add(sexComboBox);
+        updateItemPanel.add(departmentComboBox);
+        updateItemPanel.add(updateBtn);
 
-        modifyText.setVisible(true);
-        sex.setVisible(false);
-        department.setVisible(false);
+        updateTextBox.setVisible(true);
+        sexComboBox.setVisible(false);
+        departmentComboBox.setVisible(false);
 
-        updateCombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedIndex = updateCombo.getSelectedIndex();
-                if (selectedIndex == 4) { //Sex
-                    modifyText.setVisible(false);
-                    sex.setVisible(true);
-                    department.setVisible(false);
-                }
-                else if(selectedIndex == 7){ //Department
-                    modifyText.setVisible(false);
-                    sex.setVisible(false);
-                    department.setVisible(true);
-                }
-                else{
-                    modifyText.setVisible(true);
-                    sex.setVisible(false);
-                    department.setVisible(false);
-                }
+        updateItemComboBox.addActionListener(e -> {
+            int selectedIndex = updateItemComboBox.getSelectedIndex();
+
+            if (selectedIndex == 4) { //Sex
+                updateTextBox.setVisible(false);
+                sexComboBox.setVisible(true);
+                departmentComboBox.setVisible(false);
+            }
+            else if(selectedIndex == 7){ //Department
+                updateTextBox.setVisible(false);
+                sexComboBox.setVisible(false);
+                departmentComboBox.setVisible(true);
+            }
+            else{
+                updateTextBox.setVisible(true);
+                sexComboBox.setVisible(false);
+                departmentComboBox.setVisible(false);
             }
         });
 
-        updatePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-
+        updateItemPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         updateBtn.addActionListener(this::actionPerformed);
 
-        return updatePanel;
+        return updateItemPanel;
     }
 
-    public JPanel setDelete(){
+    public JPanel getDeleteItemPanel(){
         JPanel deletePanel = new JPanel();
         deletePanel.add(deleteBtn);
         deletePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -226,7 +210,7 @@ public class MainPanel extends JFrame {
         return deletePanel;
     }
 
-    public JPanel setInsert(){
+    public JPanel getInsertItemPanel(){
         JPanel insertPanel = new JPanel();
         insertPanel.add(insertBtn);
         insertPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
