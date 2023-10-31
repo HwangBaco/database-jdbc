@@ -9,7 +9,7 @@ public class JDBCDeleteEmployeeData extends Component {
     private String sql = null;
     private final String baseDeleteClause = "DELETE FROM EMPLOYEE WHERE ";
 
-    public void deleteEmployee(JTextField text, JComboBox sex, JComboBox department, boolean[] boolArr, JComboBox where, Connection conn) {
+    public boolean deleteEmployee(JTextField text, JComboBox sex, JComboBox department, boolean[] boolArr, JComboBox where, Connection conn) {
         int idx;
         String s;
         sql = baseDeleteClause;
@@ -41,8 +41,11 @@ public class JDBCDeleteEmployeeData extends Component {
 //            } else {
 //                JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
 //            }
+            if(res > 0) return true;
+            else return false;
         } catch (SQLException ex) {
             ex.printStackTrace();
+            return false;
         } finally { //명령 수행 후 DB 연결 종료
             if (conn != null) {
                 try {

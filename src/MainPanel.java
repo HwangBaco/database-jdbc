@@ -9,15 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.SQLException;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 public class MainPanel extends JFrame {
     JButton searchBtn, updateBtn, deleteBtn, insertBtn;
@@ -299,7 +291,9 @@ public class MainPanel extends JFrame {
 
             // 삭제 버튼 누르면
             jdbc.connectJDBC();
-            jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo);
+            if(jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo))
+                JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
+            else JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
             jdbc.disconnectJDBC();
         } else if (e.getSource() == insertBtn) {
             if (sf == null) {

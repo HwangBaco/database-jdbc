@@ -43,11 +43,11 @@ public class JDBC {
         }
     }
 
-    public void insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory){
-        jdbcInsertEmployeeData.insertEmployeeData(fields, sexCategory, conn);
+    public boolean insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory){
+        return jdbcInsertEmployeeData.insertEmployeeData(fields, sexCategory, conn);
     }
 
-    public void deleteEmployee(JTextField jTextField, JComboBox jComboBox1, JComboBox jComboBox2, boolean[] booleans, JComboBox jComboBox3) {
-        jdbcDeleteEmployeeData.deleteEmployee(jTextField, jComboBox1, jComboBox2, booleans, jComboBox3, conn);
+    public boolean deleteEmployee(JTextField jTextField, JComboBox jComboBox1, JComboBox jComboBox2, boolean[] booleans, JComboBox jComboBox3) {
+        return jdbcDeleteEmployeeData.deleteEmployee(jTextField, jComboBox1, jComboBox2, booleans, jComboBox3, conn);
     }
 }
