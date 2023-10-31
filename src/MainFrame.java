@@ -4,6 +4,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class MainFrame extends JFrame {
     public MainFrame(){
@@ -18,9 +20,11 @@ public class MainFrame extends JFrame {
 
         MainPanel mainPanel = new MainPanel();
         JPanel top = mainPanel.getTopPanel();
+        JPanel middle = mainPanel.setTable();
         JPanel bottom = mainPanel.getBottomPanel();
 
         container.add("North", top);
+        container.add( middle);
         container.add("South", bottom);
 
         frame.pack();

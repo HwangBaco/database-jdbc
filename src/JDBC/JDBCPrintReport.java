@@ -1,9 +1,12 @@
 package src.JDBC;
 
+
+import java.util.Vector;
 import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import javax.swing.table.DefaultTableModel;
 
 public class JDBCPrintReport {
 
@@ -49,30 +52,43 @@ public class JDBCPrintReport {
     }
     
     // sql 쿼리를 만들어 실행하는 함수
-    public void printReport(JCheckBox[] checkBox, Connection conn) throws SQLException {
+    public DefaultTableModel printReport(DefaultTableModel model, JCheckBox[] checkBox, Connection conn) throws SQLException {
+        model.setColumnCount(0);
+        model.setNumRows(0);
+        //String[] header = new String[];
+        String[] record = new String[100];
+        Vector<String> header = new Vector<>();
+
         Statement stmt = conn.createStatement();
         String sql = createSql(checkBox);
 
         // sql 쿼리를 실제로 실행
-        try(ResultSet rs = stmt.executeQuery(sql)){
+        try(ResultSet rs = stmt.executeQuery(sql)) {
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnCount = rsmd.getColumnCount();
+            model.setColumnCount(columnCount);
+            System.out.printf("%d%n", model.getColumnCount());
 
             // attribute 이름을 전부 가져오는 구문
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = rsmd.getColumnName(i); // 열의 이름 가져오기
                 System.out.printf("%s ", columnName);
+                header.add(columnName);
             }
+            model.setColumnIdentifiers(header);
             System.out.println();
 
             // sql의 결과를 모두 출력하는 구문
-            while(rs.next()) {
+            while (rs.next()) {
                 for (int i = 1; i <= columnCount; i++) {
-                    System.out.printf("%s ", rs.getString(i));
+                    record[i - 1] = rs.getString(i);
+                    System.out.printf("%s ", record[i - 1]);
                 }
+                model.addRow(record);
                 System.out.println();
             }
         }
+        return model;
     }
 
 }

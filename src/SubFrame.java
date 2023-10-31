@@ -21,7 +21,7 @@ class SubFrame extends JFrame implements ActionListener {
     // SubFrame에서 JDBC 클래스를 사용하기 위한 변수 생성 및 인스턴스 생성
     // 사용자에 따라 id, password 변경
     private static final String dbacct = "root";
-    private static final String passwrd = "12345";
+    private static final String passwrd = "junhee1202";
     private static final String dbname = "company";
     JDBC jdbc = new JDBC(dbacct, passwrd, dbname);
 

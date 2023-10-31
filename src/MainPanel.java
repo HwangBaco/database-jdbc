@@ -1,5 +1,10 @@
 package src;
 
+import java.awt.Dimension;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import src.JDBC.JDBC;
 
 import java.awt.FlowLayout;
@@ -27,12 +32,13 @@ public class MainPanel extends JFrame {
     final String[] item = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
     final String[] sexs = {"M", "F"};
     String[] departments = {"Research", "Administration", "Headquarters"};
+    DefaultTableModel model = new DefaultTableModel(0, 0);
     JPanel categoryPanel, itemPanel, employeePanel,headcountPanel, updatePanel, deletePanel, insertPanel;
     JPanel topPanel, btmPanel, bottomPanel;
 
     // 사용자에 따라 id, password 변경
     private static final String dbacct = "root";
-    private static final String passwrd = "12345";
+    private static final String passwrd = "junhee1202";
     private static final String dbname = "company";
     JDBC jdbc = new JDBC(dbacct, passwrd, dbname);
 
@@ -64,24 +70,6 @@ public class MainPanel extends JFrame {
     }
     public JPanel getBottomPanel(){
         return this.bottomPanel;
-    }
-
-    class MyItemListener implements ItemListener {
-        // 체크 박스 선택이 될 때, 얘가 이벤트가 발생함을 알아차림
-        @Override
-        public void itemStateChanged(ItemEvent e) {
-            // 체크가 되었을 때
-            if(e.getStateChange() == ItemEvent.SELECTED) {
-                if(e.getItem() == items[0]) 		sumLabel.setText(item[0] + "선택");
-                else if(e.getItem() == items[1]) 		sumLabel.setText(item[1] + "선택");
-                else if(e.getItem() == items[2]) 		sumLabel.setText(item[2] + "선택");
-                else if(e.getItem() == items[3]) 		sumLabel.setText(item[3] + "선택");
-                else if(e.getItem() == items[4]) 		sumLabel.setText(item[4] + "선택");
-                else if(e.getItem() == items[5]) 		sumLabel.setText(item[5] + "선택");
-                else if(e.getItem() == items[6]) 		sumLabel.setText(item[6] + "선택");
-                else if(e.getItem() == items[7])        sumLabel.setText(item[7] + "선택");
-            }
-        }
     }
 
     public JPanel setCategory(){
@@ -130,22 +118,41 @@ public class MainPanel extends JFrame {
 
     public JPanel setItems(){
         JPanel itemPanel = new JPanel();
-        MyItemListener listener = new MyItemListener();
+        //MyItemListener listener = new MyItemListener();
 
         itemPanel.add(new JLabel("검색항목  "));
         for(int i=0;i<item.length; i++){
             items[i] = new JCheckBox(item[i]);
             itemPanel.add(items[i]);
-            items[i].addItemListener(listener);
+            //items[i].addItemListener(listener);
         }
-        itemPanel.add(sumLabel);
         itemPanel.add(searchBtn);
 
+        searchBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int val = 1;
+                for(int i = 0; i < items.length; i++){
+                    if(items[i].isSelected()) val *= 0;
+                }
+                if(val == 1) JOptionPane.showMessageDialog(null, "하나 이상의 범위를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
+            }
+        });
         itemPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         searchBtn.addActionListener(this::actionPerformed);
         return itemPanel;
     }
+
+    public JPanel setTable(){
+        JPanel tablePanel = new JPanel();
+        JTable table = new JTable(this.model);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(950, 300));
+        tablePanel.add(scrollPane);
+        return tablePanel;
+    }
+
 
     public JPanel setEmployees(){
         JPanel selectedEmployeePanel = new JPanel();
@@ -282,7 +289,8 @@ public class MainPanel extends JFrame {
         if (e.getSource() == searchBtn) {
             //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
             jdbc.connectJDBC();
-            jdbc.printReport(items);
+            model = jdbc.printReport(model, items); // 모델이 반환됨
+            //showTable(model);
             jdbc.disconnectJDBC();
         } else if (e.getSource() == updateBtn) {
             //업데이트 버튼 누르면

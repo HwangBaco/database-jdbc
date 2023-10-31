@@ -2,6 +2,7 @@ package src.JDBC;
 
 import javax.swing.*;
 import java.sql.*;
+import javax.swing.table.DefaultTableModel;
 
 public class JDBC {
 
@@ -33,12 +34,14 @@ public class JDBC {
         }
     }
 
-    public void printReport(JCheckBox[] jCheckBoxes) {
+    public DefaultTableModel printReport(DefaultTableModel model, JCheckBox[] jCheckBoxes) {
         try {
-            jdbcPrintReport.printReport(jCheckBoxes, conn);
+            model  = jdbcPrintReport.printReport(model, jCheckBoxes, conn);
+            return model;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return model;
     }
 
     public void insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory){
