@@ -128,11 +128,6 @@ public class MainPanel extends JFrame {
         return searchItemPanel;
     }
 
-    /* ----- 231031 16:39 검토 완료 ----- */
-
-    /*
-    * 입력시 이벤트 관리 필요
-    * */
     public JPanel getSelectedEmpPanel(){
         JPanel selectedEmployeePanel = new JPanel();
 
@@ -154,9 +149,6 @@ public class MainPanel extends JFrame {
         return selectedEmployeePanel;
     }
 
-    /*
-     * 입력시 이벤트 관리 필요
-     * */
     public JPanel getHeadCounts(){
         JPanel headCountPanel = new JPanel();
 
