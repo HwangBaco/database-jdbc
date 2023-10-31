@@ -1,13 +1,14 @@
 package src.JDBC;
 
 import javax.swing.*;
+import java.awt.*;
 import java.sql.*;
 
-public class JDBCInsertEmployeeData {
+public class JDBCInsertEmployeeData extends Component {
 
     private String sql = null;
 
-    public void insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory,Connection conn) {
+    public void insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory, Connection conn) {
         //INSERT 명령 수행
         //각 label에서 값 가져와서 sql문 작성에 활용
         String firstName = fields[0].getText(); //NOT NULL

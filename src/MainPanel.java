@@ -30,10 +30,15 @@ public class MainPanel extends JFrame {
     JPanel categoryPanel, itemPanel, employeePanel,headcountPanel, updatePanel, deletePanel, insertPanel;
     JPanel topPanel, btmPanel, bottomPanel;
 
+    JTextField text;
+    JComboBox sex;
+    JComboBox department;
+    JComboBox<String> categoryCombo;
+
     // 사용자에 따라 id, password 변경
     private static final String dbacct = "root";
-    private static final String passwrd = "12345";
-    private static final String dbname = "company";
+    private static final String passwrd = "1234";
+    private static final String dbname = "company_forhw";
     JDBC jdbc = new JDBC(dbacct, passwrd, dbname);
 
     MainPanel() {
@@ -86,14 +91,14 @@ public class MainPanel extends JFrame {
 
     public JPanel setCategory(){
         JPanel categoryPanel = new JPanel();
-        JComboBox<String> categoryCombo = new JComboBox<String>(category);
+        categoryCombo = new JComboBox<String>(category);
         categoryPanel.add(new JLabel("검색범위  "));
         categoryPanel.add(categoryCombo);
         categoryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JTextField text = new JTextField(20);
-        JComboBox sex = new JComboBox<String>(sexs);
-        JComboBox department = new JComboBox<String>(departments);
+        text = new JTextField(20);
+        sex = new JComboBox<String>(sexs);
+        department = new JComboBox<String>(departments);
 
         categoryPanel.add(text);
         categoryPanel.add(sex);
@@ -287,7 +292,15 @@ public class MainPanel extends JFrame {
         } else if (e.getSource() == updateBtn) {
             //업데이트 버튼 누르면
         } else if (e.getSource() == deleteBtn) {
+            boolean[] boolArray = {false, false, false};
+            boolArray[0] = text.isVisible();
+            boolArray[1] = sex.isVisible();
+            boolArray[2] = department.isVisible();
+
             // 삭제 버튼 누르면
+            jdbc.connectJDBC();
+            jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo);
+            jdbc.disconnectJDBC();
         } else if (e.getSource() == insertBtn) {
             if (sf == null) {
                 sf = new SubFrame();
@@ -298,4 +311,3 @@ public class MainPanel extends JFrame {
         }
     }
 }
-
