@@ -4,6 +4,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class MainFrame extends JFrame {
     public MainFrame(){
@@ -26,11 +28,13 @@ public class MainFrame extends JFrame {
         // 메인 panel 생성
         MainPanel mainPanel = new MainPanel();
         JPanel top = mainPanel.getTopPanel();
+        JPanel middle = mainPanel.setTable();
         JPanel bottom = mainPanel.getBottomPanel();
 
         // 컨텐츠 container에 top/bottom panel 삽입
         Container container = frame.getContentPane();
         container.add("North", top);
+        container.add( middle);
         container.add("South", bottom);
 
         frame.pack(); // 이게 왜 필요하지? -> 일단 위 contents들이 메인프레임에 들어오게 하는 목적인 걸로 보임 (but, deprecated)
