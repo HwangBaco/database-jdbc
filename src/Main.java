@@ -10,7 +10,7 @@ public class Main extends JFrame {
     * 사용자에 따라 id / pw / dbname 입력
     * */
     public static final String ID = "root";
-    public static final String PW = "1570wpcjf!";
+    public static final String PW = "password";
     public static final String DB_NAME = "company";
     public static void main(String[] args) {
         new MainFrame();
