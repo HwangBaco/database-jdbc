@@ -130,7 +130,7 @@ public class MainPanel extends JFrame implements MouseListener {
         searchItemPanel.add(searchItemLabel);
 
         for (int i = 0; i < CHECKBOX_NUM; i++) {
-            items[i] = new JCheckBox(searchItems[i]);
+            items[i] = new JCheckBox(searchItems[i], true);
             searchItemPanel.add(items[i]);
         }
 
