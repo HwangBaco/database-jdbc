@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import static src.Main.*;
+
 public class MainPanel extends JFrame implements MouseListener {
     private static final int CHECKBOX_NUM = 8;
     final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
@@ -29,11 +31,6 @@ public class MainPanel extends JFrame implements MouseListener {
     JComboBox sex;
     JComboBox department;
     JComboBox<String> categoryCombo;
-
-    // 사용자에 따라 id, password 변경
-    private static final String ID = "root";
-    private static final String PW = "junhee1202";
-    private static final String DB_NAME = "company";
     JDBC jdbc = new JDBC(ID, PW, DB_NAME);
 
     MainPanel() {
