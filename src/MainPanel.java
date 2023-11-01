@@ -4,6 +4,7 @@ import src.JDBC.JDBC;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -11,9 +12,10 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class MainPanel extends JFrame implements MouseListener {
-    final String[] SEARCH_RANGES = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
-    final String[] SEARCH_ITEMS = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
-    final String[] SEX = {"M", "F"};
+    private static final int CHECKBOX_NUM = 8;
+    final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
+    final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
+    final String[] sexStrings = {"M", "F"};
 
     JButton searchBtn, updateBtn, deleteBtn, insertBtn;
     String[] departmentStrings = {"Research", "Administration", "Headquarters"};
@@ -39,6 +41,7 @@ public class MainPanel extends JFrame implements MouseListener {
         updateBtn = new JButton("update");
         deleteBtn = new JButton("선택한 데이터 삭제");
         insertBtn = new JButton("직원 등록");
+        items = new JCheckBox[CHECKBOX_NUM];
 
         // 메인 패널에 추가될 sub Panels
         categoryPanel = getSearchRangePanel();
@@ -84,13 +87,13 @@ public class MainPanel extends JFrame implements MouseListener {
     // 컴색 범위 텍스트 + 드랍박스 injection
     public JPanel getSearchRangePanel(){
         JPanel searchRangePanel = new JPanel();
-        JComboBox<String> searchRangeComboBox = new JComboBox<>(SEARCH_RANGES);
+        JComboBox<String> searchRangeComboBox = new JComboBox<>(searchRanges);
         searchRangePanel.add(new JLabel("검색범위  "));
         searchRangePanel.add(searchRangeComboBox);
         searchRangePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         JTextField searchTextBox = new JTextField(20);
-        JComboBox<String> sexComboBox = new JComboBox<>(this.SEX);
+        JComboBox<String> sexComboBox = new JComboBox<>(this.sexStrings);
         JComboBox<String> departmentComboBox = new JComboBox<>(departmentStrings);
 
         searchRangePanel.add(searchTextBox);
@@ -131,9 +134,11 @@ public class MainPanel extends JFrame implements MouseListener {
 
         searchItemPanel.add(searchItemLabel);
 
-        for (String searchItem : SEARCH_ITEMS) {
-            searchItemPanel.add(new Checkbox(searchItem));
+        for (int i = 0; i < CHECKBOX_NUM; i++) {
+            items[i] = new JCheckBox(searchItems[i]);
+            searchItemPanel.add(items[i]);
         }
+
 
         searchItemPanel.add(searchBtn);
         searchItemPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -189,10 +194,10 @@ public class MainPanel extends JFrame implements MouseListener {
         JPanel updateItemPanel = new JPanel();
         JLabel updateItemLabel = new JLabel("수정 ");
 
-        JComboBox<String> updateItemComboBox = new JComboBox<>(SEARCH_ITEMS);
+        JComboBox<String> updateItemComboBox = new JComboBox<>(searchItems);
 
         JTextField updateTextBox = new JTextField(20);
-        JComboBox<String> sexComboBox = new JComboBox<>(this.SEX);
+        JComboBox<String> sexComboBox = new JComboBox<>(this.sexStrings);
         JComboBox<String> departmentComboBox = new JComboBox<>(departmentStrings);
 
         updateItemPanel.add(updateItemLabel);
@@ -301,14 +306,27 @@ public class MainPanel extends JFrame implements MouseListener {
 
 
     SubFrame sf;
-    public void actionPerformed(ActionEvent e) {
 
+    /*
+    * 버튼 이벤트리스너 관리
+    * */
+    public void actionPerformed(ActionEvent e) {
         if (e.getSource() == searchBtn) {
-            //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
-            jdbc.connectJDBC();
-            model = jdbc.printReport(model, items); // 모델이 반환됨
-            //showTable(model);
-            jdbc.disconnectJDBC();
+            boolean isSelected = false;
+            for(JCheckBox item : items){
+                if(item.isSelected()){
+                    isSelected = true;
+                }
+            }
+            if (!isSelected) {
+                JOptionPane.showMessageDialog(null, "하나 이상의 범위를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
+            } else {
+                //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
+                jdbc.connectJDBC();
+                model = jdbc.printReport(model, items); // 모델이 반환됨
+                //showTable(model);
+                jdbc.disconnectJDBC();
+            }
         } else if (e.getSource() == updateBtn) {
             //업데이트 버튼 누르면
         } else if (e.getSource() == deleteBtn) {
@@ -332,4 +350,5 @@ public class MainPanel extends JFrame implements MouseListener {
             }
         }
     }
+
 }
