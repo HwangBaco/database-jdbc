@@ -23,8 +23,8 @@ public class MainPanel extends JFrame implements MouseListener {
     DefaultTableModel model = new DefaultTableModel(0, 0); // edited
     JTable table = new JTable(this.model); // edited
     JCheckBox[] items; // edited
-    JPanel categoryPanel, itemPanel, rightBottom,headcountPanel, updatePanel, deletePanel, insertPanel;
-    JPanel topPanel, bottomPanel, leftBottom;
+    JPanel searchRangePanel, searchItemPanel, selectedEmpPanel,headcountPanel, updatePanel, deletePanel, insertPanel;
+    JPanel topPanel, bottomPanel, leftBottomPanel;
 
     JTextField text;
     JComboBox sex;
@@ -40,31 +40,31 @@ public class MainPanel extends JFrame implements MouseListener {
         items = new JCheckBox[CHECKBOX_NUM];
 
         // 메인 패널에 추가될 sub Panels
-        categoryPanel = getSearchRangePanel();
-        itemPanel = getSearchItemPanel();
-        rightBottom = getSelectedEmpPanel();
+        searchRangePanel = getSearchRangePanel();
+        searchItemPanel = getSearchItemPanel();
+        selectedEmpPanel = getSelectedEmpPanel();
         headcountPanel = getHeadCounts();
         updatePanel = getUpdateItemPanel();
         deletePanel = getDeleteItemPanel();
         insertPanel = getInsertItemPanel();
 
         // 구역별 sub Panels 위치
-        ArrayList<JPanel> topPanels = new ArrayList<>();
-        topPanels.add(categoryPanel);
-        topPanels.add(itemPanel);
-        topPanel = setTop(topPanels);
+        ArrayList<JPanel> searchPanels = new ArrayList<>();
+        searchPanels.add(searchRangePanel);
+        searchPanels.add(searchItemPanel);
+        topPanel = setTopPanel(searchPanels);
 
-        ArrayList<JPanel> halfBottomPanels = new ArrayList<>();
-        halfBottomPanels.add(headcountPanel);
-        halfBottomPanels.add(updatePanel);
-        halfBottomPanels.add(deletePanel);
-        halfBottomPanels.add(insertPanel);
-        leftBottom = setHalfBottom(halfBottomPanels);
+        ArrayList<JPanel> commandPanels = new ArrayList<>();
+        commandPanels.add(headcountPanel);
+        commandPanels.add(updatePanel);
+        commandPanels.add(deletePanel);
+        commandPanels.add(insertPanel);
+        leftBottomPanel = setLeftBottomPanel(commandPanels);
 
 
         ArrayList<JPanel> bottomPanels = new ArrayList<>();
-        bottomPanels.add(leftBottom);
-        bottomPanels.add(rightBottom);
+        bottomPanels.add(leftBottomPanel);
+        bottomPanels.add(selectedEmpPanel);
 
         bottomPanel = setBottom(bottomPanels);
 
@@ -75,7 +75,7 @@ public class MainPanel extends JFrame implements MouseListener {
         return this.topPanel;
     }
     public JPanel getBottomPanel(){
-        return this.leftBottom;
+        return this.leftBottomPanel;
     }
 
 
@@ -248,7 +248,7 @@ public class MainPanel extends JFrame implements MouseListener {
         return insertPanel;
     }
 
-    public JPanel setTop(ArrayList<JPanel> panels){
+    public JPanel setTopPanel(ArrayList<JPanel> panels){
         JPanel top = new JPanel();
         for (JPanel panel : panels) {
             top.add(panel);
@@ -258,7 +258,7 @@ public class MainPanel extends JFrame implements MouseListener {
         return top;
     }
 
-    public JPanel setHalfBottom(ArrayList<JPanel> panels){
+    public JPanel setLeftBottomPanel(ArrayList<JPanel> panels){
         JPanel bottomPanel = new JPanel();
         for (JPanel panel : panels) {
             bottomPanel.add(panel);
