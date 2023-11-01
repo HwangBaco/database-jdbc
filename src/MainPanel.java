@@ -307,30 +307,22 @@ public class MainPanel extends JFrame implements MouseListener {
     * */
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == searchBtn) {
-            boolean isSelected = false;
-            for(JCheckBox item : items){
-                if(item.isSelected()){
-                    isSelected = true;
-                }
-            }
-            if (!isSelected) {
+            if (!isSelected()) {
                 JOptionPane.showMessageDialog(null, "하나 이상의 범위를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
             } else {
-                //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
-                jdbc.connectJDBC();
-                model = jdbc.printReport(model, items); // 모델이 반환됨
-                //showTable(model);
-                jdbc.disconnectJDBC();
+                printSelectedItems();
             }
+
         } else if (e.getSource() == updateBtn) {
             //업데이트 버튼 누르면
+
         } else if (e.getSource() == deleteBtn) {
+            // 삭제 버튼 누르면
             boolean[] boolArray = {false, false, false};
             boolArray[0] = text.isVisible();
             boolArray[1] = sex.isVisible();
             boolArray[2] = department.isVisible();
 
-            // 삭제 버튼 누르면
             jdbc.connectJDBC();
             if(jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo))
                 JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
@@ -344,6 +336,24 @@ public class MainPanel extends JFrame implements MouseListener {
                 sf = new SubFrame();
             }
         }
+    }
+
+    private void printSelectedItems() {
+        //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
+        jdbc.connectJDBC();
+        model = jdbc.printReport(model, items); // 모델이 반환됨
+        //showTable(model);
+        jdbc.disconnectJDBC();
+    }
+
+    private boolean isSelected() {
+        boolean isSelected = false;
+        for(JCheckBox item : items){
+            if(item.isSelected()){
+                isSelected = true;
+            }
+        }
+        return isSelected;
     }
 
 }
