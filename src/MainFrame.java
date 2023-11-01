@@ -4,8 +4,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 public class MainFrame extends JFrame {
     public MainFrame(){
@@ -28,7 +26,7 @@ public class MainFrame extends JFrame {
         // 메인 panel 생성
         MainPanel mainPanel = new MainPanel();
         JPanel top = mainPanel.getTopPanel();
-        JPanel middle = mainPanel.setTable();
+        JPanel middle = mainPanel.setTablePanel();
         JPanel bottom = mainPanel.getBottomPanel();
 
         // 컨텐츠 container에 top/bottom panel 삽입

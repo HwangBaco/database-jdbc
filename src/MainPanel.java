@@ -4,7 +4,6 @@ import src.JDBC.JDBC;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -24,8 +23,8 @@ public class MainPanel extends JFrame implements MouseListener {
     DefaultTableModel model = new DefaultTableModel(0, 0); // edited
     JTable table = new JTable(this.model); // edited
     JCheckBox[] items; // edited
-    JPanel categoryPanel, itemPanel, employeePanel,headcountPanel, updatePanel, deletePanel, insertPanel;
-    JPanel topPanel, halfBottomPanel, halfBottom;
+    JPanel categoryPanel, itemPanel, rightBottom,headcountPanel, updatePanel, deletePanel, insertPanel;
+    JPanel topPanel, bottomPanel, leftBottom;
 
     JTextField text;
     JComboBox sex;
@@ -43,7 +42,7 @@ public class MainPanel extends JFrame implements MouseListener {
         // 메인 패널에 추가될 sub Panels
         categoryPanel = getSearchRangePanel();
         itemPanel = getSearchItemPanel();
-        employeePanel = getSelectedEmpPanel();
+        rightBottom = getSelectedEmpPanel();
         headcountPanel = getHeadCounts();
         updatePanel = getUpdateItemPanel();
         deletePanel = getDeleteItemPanel();
@@ -60,24 +59,23 @@ public class MainPanel extends JFrame implements MouseListener {
         halfBottomPanels.add(updatePanel);
         halfBottomPanels.add(deletePanel);
         halfBottomPanels.add(insertPanel);
-        halfBottom = setHalfBottom(halfBottomPanels);
+        leftBottom = setHalfBottom(halfBottomPanels);
 
 
         ArrayList<JPanel> bottomPanels = new ArrayList<>();
-        bottomPanels.add(halfBottom);
-        bottomPanels.add(employeePanel);
+        bottomPanels.add(leftBottom);
+        bottomPanels.add(rightBottom);
 
-        halfBottomPanel = setBottom(bottomPanels);
+        bottomPanel = setBottom(bottomPanels);
 
         jdbc.connectJDBC();
-
     }
 
     public JPanel getTopPanel(){
         return this.topPanel;
     }
     public JPanel getBottomPanel(){
-        return this.halfBottom;
+        return this.leftBottom;
     }
 
 
@@ -144,7 +142,7 @@ public class MainPanel extends JFrame implements MouseListener {
         return searchItemPanel;
     }
 
-    public JPanel setTable(){
+    public JPanel setTablePanel(){
         JPanel tablePanel = new JPanel();
         JScrollPane scrollPane = new JScrollPane(this.table);
         table.addMouseListener(this);
