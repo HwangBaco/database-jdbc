@@ -27,9 +27,10 @@ public class MainPanel extends JFrame implements MouseListener {
     JPanel topPanel, bottomPanel, leftBottomPanel;
 
     JTextField text;
-    JComboBox sex;
-    JComboBox department;
+    JComboBox<String> sex;
+    JComboBox<String> department;
     JComboBox<String> categoryCombo;
+
     JDBC jdbc = new JDBC(ID, PW, DB_NAME);
 
     MainPanel() {
@@ -90,6 +91,12 @@ public class MainPanel extends JFrame implements MouseListener {
         JTextField searchTextBox = new JTextField(20);
         JComboBox<String> sexComboBox = new JComboBox<>(this.sexStrings);
         JComboBox<String> departmentComboBox = new JComboBox<>(departmentStrings);
+
+        //이부분 지우지 말아주세요! 밑에 변수 네개
+        text = searchTextBox;
+        sex = sexComboBox;
+        department = departmentComboBox;
+        categoryCombo = searchRangeComboBox;
 
         searchRangePanel.add(searchTextBox);
         searchRangePanel.add(sexComboBox);
