@@ -35,7 +35,7 @@ public class MainFrame extends JFrame {
         container.add( middle);
         container.add("South", bottom);
 
-        frame.pack(); // 이게 왜 필요하지? -> 일단 위 contents들이 메인프레임에 들어오게 하는 목적인 걸로 보임 (but, deprecated)
+        frame.pack(); // 위 contents들이 메인프레임에 들어오게 하는 목적인 걸로 보임 (but, deprecated)
     }
 }
 
