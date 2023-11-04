@@ -422,13 +422,7 @@ public class MainPanel extends JFrame {
     }
 
     private boolean hasSsnAttribute() {
-        boolean isSelected = false;
-        for (JCheckBox item : items) {
-            if (item.getText().equals("Ssn") && item.isSelected()) {
-                isSelected = true;
-            }
-        }
-        return isSelected;
+        return !ssnList.isEmpty();
     }
 
     private class modelEventListener implements TableModelListener {
