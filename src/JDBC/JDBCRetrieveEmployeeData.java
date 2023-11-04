@@ -73,8 +73,13 @@ public class JDBCRetrieveEmployeeData {
 
         // parameter 값을 토대로 where절 완성
         if(!attribute.isBlank() && !condition.isBlank()){
-            if(attribute.equals("연봉")) whereClause = (baseWhereCluase + "salary" + " >= " + condition);
-            else whereClause = baseWhereCluase + attribute + " = " + "\"" + condition + "\"";
+            if(attribute.equals("Salary")) {
+                whereClause = (baseWhereCluase + attribute + " >= " + condition);
+            } /*else if {
+                whereClause = (baseWhereCluase + attribute)
+            }*/ else {
+                whereClause = (baseWhereCluase + attribute + " = " + "\"" + condition + "\"");
+            }
         }
         System.out.println("Generated Query : " + selectClause + fromClause + whereClause);
         return selectClause + fromClause + whereClause;
@@ -119,7 +124,6 @@ public class JDBCRetrieveEmployeeData {
                     System.out.printf("%s ", record.get(i));
                 }
                 model.addRow(record);
-                System.out.println();
             }
         } catch (SQLException e){
             System.out.println("쿼리문 오류");

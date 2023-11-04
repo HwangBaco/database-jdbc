@@ -30,7 +30,7 @@ public class MainPanel extends JFrame {
 
     // search filter
     private static final int CHECKBOX_NUM = 8;
-    final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
+    final String[] searchRanges = {"All", "Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
     final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
     final String[] sexStrings = {"M", "F"};
     final String[] departmentStrings = {"Research", "Administration", "Headquarters"};
