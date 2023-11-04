@@ -56,7 +56,6 @@ public class JDBCPrintReport {
         model.setColumnCount(0);
         model.setNumRows(0);
         //String[] header = new String[];
-        Vector<Object> record = new Vector<>();
         Vector<String> header = new Vector<>();
 
         Statement stmt = conn.createStatement();
@@ -80,8 +79,9 @@ public class JDBCPrintReport {
             System.out.println();
 
             // sql의 결과를 모두 출력하는 구문
-            record.add(false);
             while (rs.next()) {
+                Vector<Object> record = new Vector<>();
+                record.add(false);
                 for (int i = 1; i <= columnCount; i++) {
                     record.add(rs.getString(i));
                     System.out.printf("%s ", record.get(i));

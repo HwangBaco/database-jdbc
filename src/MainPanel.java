@@ -13,7 +13,7 @@ import javax.swing.table.TableModel;
 
 import static src.Main.*;
 
-public class MainPanel extends JFrame /*implements MouseListener*/ {
+public class MainPanel extends JFrame {
     private static final int CHECKBOX_NUM = 8;
     final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
     final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
@@ -165,9 +165,7 @@ public class MainPanel extends JFrame /*implements MouseListener*/ {
         JPanel tablePanel = new JPanel();
         JScrollPane scrollPane = new JScrollPane(this.table);
         table.getModel().addTableModelListener(new CheckboxModelListener(selectedEmpPanel));
-
-//        table.addMouseListener(this);
-        scrollPane.setSize(950, 300);
+        scrollPane.setPreferredSize(new Dimension(1000, 300));
         tablePanel.add(scrollPane);
         return tablePanel;
     }
