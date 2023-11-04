@@ -22,7 +22,6 @@ public class LoginFrame extends JFrame implements ActionListener {
     public static String PW;
     public static String DB_NAME;
     JPanel loginPanel;
-    JLabel exceptionMsg;
 
 
     public LoginFrame() {
@@ -87,6 +86,7 @@ public class LoginFrame extends JFrame implements ActionListener {
             MainFrame mainFrame = new MainFrame();
             dispose();
         } catch (Exception exception) {
+            JOptionPane.showMessageDialog(null, "ID 또는 PW 또는 DB name이 잘못되었습니다.", "경고", JOptionPane.WARNING_MESSAGE);
             exception.printStackTrace();
         }
     }
