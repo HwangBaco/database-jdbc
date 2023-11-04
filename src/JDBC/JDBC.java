@@ -60,10 +60,6 @@ public class JDBC {
      }
 
     public void deleteEmployee(Set<String> ssnList) throws SQLException{
-        try {
-            jdbcDeleteEmployeeData.deleteEmployee(ssnList, conn);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        jdbcDeleteEmployeeData.deleteEmployee(ssnList, conn);
     }
 }
