@@ -16,7 +16,6 @@ public class JDBCDeleteEmployeeData extends Component {
             for (String ssn : ssnList) {
                 sb = new StringBuilder();
                 String sql = sb.append(baseDeleteClause).append("ssn = ").append(ssn).append(";").toString();
-                System.out.println("sql = " + sql);
                 stmt.execute(sql);
             }
         } catch(Exception e) {

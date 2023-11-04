@@ -448,7 +448,6 @@ public class MainPanel extends JFrame {
                     if (isChecked) {
                         if (secondColumn.equals("Ssn")) {
                             ssnList.add(model.getValueAt(row, 2).toString());
-                            System.out.println("ADD : model.getValueAt(row, 2) = " + model.getValueAt(row, 2));
                         }
                         for (int i = 0; i < table.getRowCount(); i++) {
                             if (isCheckedRow(i)) {
@@ -459,7 +458,6 @@ public class MainPanel extends JFrame {
                     } else {
                         if (secondColumn.equals("Ssn")) {
                             ssnList.remove(model.getValueAt(row, 2).toString());
-                            System.out.println("REMOVE : model.getValueAt(row, 2) = " + model.getValueAt(row, 2));
                         }
                         for (int i = 0; i < table.getRowCount(); i++) {
                             if (isCheckedRow(i)) {
@@ -473,10 +471,8 @@ public class MainPanel extends JFrame {
                 if (firstColumn.equals("Ssn")) {
                     if (isChecked) {
                         ssnList.add(model.getValueAt(row, 1).toString());
-                        System.out.println("ADD : model.getValueAt(row, 1) = " + model.getValueAt(row, 1));
                     } else {
                         ssnList.remove(model.getValueAt(row, 1).toString());
-                        System.out.println("REMOVE : model.getValueAt(row, 1) = " + model.getValueAt(row, 1));
                     }
                 }
             }
