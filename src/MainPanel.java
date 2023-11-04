@@ -17,10 +17,10 @@ public class MainPanel extends JFrame {
     private static final int CHECKBOX_NUM = 8;
     final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
     final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
-    final String[] sexStrings = {"M", "F"};
+    final String[] sexStrings = {"", "M", "F"};
 
     JButton searchBtn, updateBtn, deleteBtn, insertBtn;
-    String[] departmentStrings = {"Research", "Administration", "Headquarters"};
+    String[] departmentStrings = {"", "Research", "Administration", "Headquarters"};
     DefaultTableModel model = new DefaultTableModel(0, 0); // edited
 
     private int NAME_COLUMN = 0;
@@ -306,7 +306,7 @@ public class MainPanel extends JFrame {
     public void mouseClicked(MouseEvent e) {
         int row = table.getSelectedRow();
         for (int i = 0; i < table.getColumnCount(); i++) {
-            System.out.print(table.getModel().getValueAt(row, i )+"\t"); //삭제할 때 필요한 record 정보
+            //System.out.print(table.getModel().getValueAt(row, i )+"\t"); //삭제할 때 필요한 record 정보
         } }
 
     @Override
@@ -331,7 +331,7 @@ public class MainPanel extends JFrame {
     public void click(ActionEvent e) {
         if (e.getSource() == searchBtn) {
             if (!isSelected()) {
-                JOptionPane.showMessageDialog(null, "하나 이상의 범위를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "하나 이상의 항목를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
             } else {
                 printSelectedItems();
             }
@@ -364,7 +364,7 @@ public class MainPanel extends JFrame {
     private void printSelectedItems() {
         //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
         jdbc.connectJDBC();
-        model = jdbc.printReport(model, items); // 모델이 반환됨
+        model = jdbc.printReport(model, items, categoryCombo, text, sex, department); // 모델이 반환됨
         //showTable(model);
         jdbc.disconnectJDBC();
     }

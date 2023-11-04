@@ -8,15 +8,17 @@ public class JDBC {
 
     private Connection conn;
     private final JDBCConnect jdbcConnect;
-    private final JDBCPrintReport jdbcPrintReport;
+    private final JDBCRetrieveEmployeeData jdbcPrintReport;
     private final JDBCInsertEmployeeData jdbcInsertEmployeeData;
     private final JDBCDeleteEmployeeData jdbcDeleteEmployeeData;
+    private final JDBCUpdateEmployeeData jdbcUpdateEmployeeData;
 
     public JDBC(String user, String password, String dbname){
         jdbcConnect = new JDBCConnect(user, password, dbname);
-        jdbcPrintReport = new JDBCPrintReport();
+        jdbcPrintReport = new JDBCRetrieveEmployeeData();
         jdbcInsertEmployeeData = new JDBCInsertEmployeeData();
         jdbcDeleteEmployeeData = new JDBCDeleteEmployeeData();
+        jdbcUpdateEmployeeData = new JDBCUpdateEmployeeData();
     }
 
     public void connectJDBC() {
@@ -36,14 +38,19 @@ public class JDBC {
         }
     }
 
-    public DefaultTableModel printReport(DefaultTableModel model, JCheckBox[] jCheckBoxes) {
+    public DefaultTableModel printReport(DefaultTableModel model, JCheckBox[] checkBox,
+                                         JComboBox<String> category, JTextField text, JComboBox<String> sex, JComboBox<String> department) {
+
         try {
-            model  = jdbcPrintReport.printReport(model, jCheckBoxes, conn);
+            model  = jdbcPrintReport.printReport(model, checkBox, category, text, sex, department, conn);
             return model;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return model;
+    }
+    public void updateEmployeeDate(){
+        jdbcUpdateEmployeeData.updateEmployeeDate();
     }
 
     public boolean insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory){
