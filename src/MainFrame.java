@@ -14,7 +14,7 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // 메인 panel 생성
-        MainPanel mainPanel = new MainPanel();
+        MainPanel mainPanel = new MainPanel(this);
         JPanel top = mainPanel.getSearchPanel();
         JPanel middle = mainPanel.getTablePanel();
         JPanel bottom = mainPanel.getContextPanel();

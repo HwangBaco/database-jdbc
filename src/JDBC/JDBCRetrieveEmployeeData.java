@@ -85,8 +85,7 @@ public class JDBCRetrieveEmployeeData {
                                          JComboBox<String> category, JTextField text, JComboBox<String> sex, JComboBox<String> department, Connection conn) throws SQLException {
         model.setColumnCount(0);
         model.setNumRows(0);
-        //String[] record = new String[100];
-        Vector<String> header = new Vector<>();
+        Vector<String> headerRow = new Vector<>();
 
         // 조건을 parsing하고 sql에 생성 함수의 매개변수로 넘긴다.
         Statement stmt = conn.createStatement();
@@ -102,13 +101,13 @@ public class JDBCRetrieveEmployeeData {
             System.out.printf("%d%n", model.getColumnCount());
 
             // attribute 이름을 전부 가져오는 구문
-            header.add("선택");
+            headerRow.add("선택");
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = rsmd.getColumnName(i); // 열의 이름 가져오기
                 System.out.printf("%s ", columnName);
-                header.add(columnName);
+                headerRow.add(columnName);
             }
-            model.setColumnIdentifiers(header);
+            model.setColumnIdentifiers(headerRow);
             System.out.println();
 
             // sql의 결과를 모두 출력하는 구문

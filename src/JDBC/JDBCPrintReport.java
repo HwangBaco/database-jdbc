@@ -53,10 +53,9 @@ public class JDBCPrintReport {
 
     // sql 쿼리를 만들어 실행하는 함수
     public DefaultTableModel printReport(DefaultTableModel model, JCheckBox[] checkBox, Connection conn) throws SQLException {
-        model.setColumnCount(0);
-        model.setNumRows(0);
-        //String[] header = new String[];
-        Vector<String> header = new Vector<>();
+//        model.setColumnCount(0);
+//        model.setNumRows(0);
+        Vector<String> tableColumns = new Vector<>();
 
         Statement stmt = conn.createStatement();
         String sql = createSql(checkBox);
@@ -65,30 +64,40 @@ public class JDBCPrintReport {
         try(ResultSet rs = stmt.executeQuery(sql)) {
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnCount = rsmd.getColumnCount();
-            model.setColumnCount(columnCount);
-            System.out.printf("%d%n", model.getColumnCount());
+//            model.setColumnCount(columnCount);
 
             // attribute 이름을 전부 가져오는 구문
-            header.add("선택");
+            tableColumns.add("선택");
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = rsmd.getColumnName(i); // 열의 이름 가져오기
                 System.out.printf("%s ", columnName);
-                header.add(columnName);
+                tableColumns.add(columnName);
             }
-            model.setColumnIdentifiers(header);
-            System.out.println();
+            model = new DefaultTableModel(tableColumns,0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    if (column > 0) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }; // edit
+            model.setColumnCount(columnCount); // edit
+//            model.setColumnIdentifiers(tableColumns);
 
             // sql의 결과를 모두 출력하는 구문
             while (rs.next()) {
-                Vector<Object> record = new Vector<>();
-                record.add(false);
+                Vector<Object> records = new Vector<>();
+                records.add(false);
                 for (int i = 1; i <= columnCount; i++) {
-                    record.add(rs.getString(i));
-                    System.out.printf("%s ", record.get(i));
+                    records.add(rs.getString(i));
+                    System.out.printf("%s ", records.get(i));
                 }
-                model.addRow(record);
+                model.addRow(records);
                 System.out.println();
             }
+
         }
         return model;
     }

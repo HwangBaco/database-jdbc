@@ -4,7 +4,8 @@ import src.JDBC.JDBC;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -14,6 +15,15 @@ import javax.swing.table.TableModel;
 import static src.Main.*;
 
 public class MainPanel extends JFrame {
+    MainFrame frame;
+
+    // 컴포넌트 판넬
+    JPanel searchRangePanel, searchItemPanel, selectedEmpPanel, headcountPanel, updatePanel, deletePanel, insertPanel;
+    // 레이아웃 판넬
+    JPanel searchPanel, contextPanel, midPanel, bottomPanel;
+    // 액션 버튼
+    JButton searchBtn, updateBtn, deleteBtn, insertBtn;
+
 
     // search filter
     private static final int CHECKBOX_NUM = 8;
@@ -21,13 +31,19 @@ public class MainPanel extends JFrame {
     final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
     final String[] sexStrings = {"M", "F"};
     final String[] departmentStrings = {"Research", "Administration", "Headquarters"};
+
     JCheckBox[] items;
 
-    // buttons
-    JButton searchBtn, updateBtn, deleteBtn, insertBtn;
+    JTextField text;
+    JComboBox<String> sex;
+    JComboBox<String> department;
+    JComboBox<String> category;
+
 
     // table
-    private int NAME_COLUMN = 0;
+    JPanel tablePanel;
+//    JPanel tablePanel = new JPanel();
+    JScrollPane scrollPane;
     DefaultTableModel model = new DefaultTableModel(0, 0) {
         @Override
         public boolean isCellEditable(int row, int column) {
@@ -38,7 +54,6 @@ public class MainPanel extends JFrame {
             }
         }
     };
-    JPanel tablePanel = new JPanel();
     JTable table = new JTable(this.model) {
         @Override
         public Class getColumnClass(int column) {
@@ -48,20 +63,23 @@ public class MainPanel extends JFrame {
                 return String.class;
         }
     };
-    ;
+
+    public static Map<String, Integer> columnIdxMap = new HashMap<>();
+
     boolean actionAfterCommand = false;
 
-    JPanel searchRangePanel, searchItemPanel, selectedEmpPanel, headcountPanel, updatePanel, deletePanel, insertPanel;
-    JPanel searchPanel, contextPanel, midPanel, bottomPanel;
-    private JLabel selectedEmpStrings = new JLabel();
-    JTextField text;
-    JComboBox<String> sex;
-    JComboBox<String> department;
-    JComboBox<String> categoryCombo;
+
+    // 업데이트 해줘야 하는 필드는 공통으로 관리
+    public JLabel headCountNumber = new JLabel();
+    public JLabel selectedEmpStrings = new JLabel();
+
+
+
 
     JDBC jdbc = new JDBC(ID, PW, DB_NAME);
 
-    MainPanel() {
+    MainPanel(MainFrame frame) {
+        this.frame = frame;
         searchBtn = new JButton("검색");
         updateBtn = new JButton("update");
         deleteBtn = new JButton("선택한 데이터 삭제");
@@ -101,42 +119,37 @@ public class MainPanel extends JFrame {
         searchRangePanel.add(searchRangeComboBox);
         searchRangePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JTextField searchTextBox = new JTextField(20);
-        JComboBox<String> sexComboBox = new JComboBox<>(this.sexStrings);
-        JComboBox<String> departmentComboBox = new JComboBox<>(departmentStrings);
+        text = new JTextField(20);
+        sex = new JComboBox<>(this.sexStrings);
+        department = new JComboBox<>(departmentStrings);
+        category = searchRangeComboBox;
 
-        //이부분 지우지 말아주세요! 밑에 변수 네개
-        text = searchTextBox;
-        sex = sexComboBox;
-        department = departmentComboBox;
-        categoryCombo = searchRangeComboBox;
+        searchRangePanel.add(text);
+        searchRangePanel.add(sex);
+        searchRangePanel.add(department);
 
-        searchRangePanel.add(searchTextBox);
-        searchRangePanel.add(sexComboBox);
-        searchRangePanel.add(departmentComboBox);
-
-        searchTextBox.setVisible(false);
-        sexComboBox.setVisible(false);
-        departmentComboBox.setVisible(false);
+        text.setVisible(false);
+        sex.setVisible(false);
+        department.setVisible(false);
 
         searchRangeComboBox.addActionListener(e -> {
             int selectedIndex = searchRangeComboBox.getSelectedIndex();
             if (selectedIndex == 0) { // 전체
-                searchTextBox.setVisible(false);
-                sexComboBox.setVisible(false);
-                departmentComboBox.setVisible(false);
+                text.setVisible(false);
+                sex.setVisible(false);
+                department.setVisible(false);
             } else if (selectedIndex == 5) { //Sex
-                searchTextBox.setVisible(false);
-                sexComboBox.setVisible(true);
-                departmentComboBox.setVisible(false);
+                text.setVisible(false);
+                sex.setVisible(true);
+                department.setVisible(false);
             } else if (selectedIndex == 8) { //Department
-                searchTextBox.setVisible(false);
-                sexComboBox.setVisible(false);
-                departmentComboBox.setVisible(true);
+                text.setVisible(false);
+                sex.setVisible(false);
+                department.setVisible(true);
             } else {
-                searchTextBox.setVisible(true);
-                sexComboBox.setVisible(false);
-                departmentComboBox.setVisible(false);
+                text.setVisible(true);
+                sex.setVisible(false);
+                department.setVisible(false);
             }
         });
 
@@ -152,6 +165,7 @@ public class MainPanel extends JFrame {
         for (int i = 0; i < CHECKBOX_NUM; i++) {
             items[i] = new JCheckBox(searchItems[i], true);
             searchItemPanel.add(items[i]);
+            columnIdxMap.put(searchItems[i], -1);
         }
 
 
@@ -163,11 +177,14 @@ public class MainPanel extends JFrame {
     }
 
     public JPanel getTablePanel() {
-        JPanel tablePanel = new JPanel();
-        JScrollPane scrollPane = new JScrollPane(this.table);
-        table.getModel().addTableModelListener(new CheckboxModelListener(selectedEmpPanel));
+        tablePanel = new JPanel();
+        scrollPane = new JScrollPane(this.table);
+        table.getModel().addTableModelListener(new CheckboxModelListener());
         scrollPane.setPreferredSize(new Dimension(1000, 300));
         tablePanel.add(scrollPane);
+        frame.add(tablePanel, BorderLayout.CENTER);
+        frame.revalidate();
+
         return tablePanel;
     }
 
@@ -190,10 +207,9 @@ public class MainPanel extends JFrame {
         JPanel headCountPanel = new JPanel();
 
         JLabel headCountLabel = new JLabel("인원수 :  ");
-        JLabel headCounts = new JLabel();
 
         headCountPanel.add(headCountLabel);
-        headCountPanel.add(headCounts);
+        headCountPanel.add(headCountNumber);
 
         headCountPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
@@ -311,17 +327,29 @@ public class MainPanel extends JFrame {
         jdbc.connectJDBC();
 
         if (actionAfterCommand) {
-            remove(tablePanel);
-            revalidate();
+            frame.remove(tablePanel);
+            frame.revalidate();
         }
 
         if (e.getSource().equals(searchBtn)) {
-            if (!isSelected()) {
+            if (!hasSelectAttribute()) {
                 JOptionPane.showMessageDialog(null, "하나 이상의 항목를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
             } else {
-                model = jdbc.printReport(model, items, categoryCombo, text, sex, department); // 모델이 반환됨
+                model = jdbc.printReport(model, items, category, text, sex, department); // 모델이 반환됨
                 actionAfterCommand = true;
-
+                table = new JTable(model) {
+                    @Override
+                    public Class getColumnClass(int column) {
+                        if (column == 0) {
+                            return Boolean.class;
+                        } else
+                            return String.class;
+                    }
+                };
+                selectedEmpStrings.setText(" ");
+                int rowCount = model.getRowCount();
+                headCountNumber.setText(String.valueOf(rowCount));
+                getTablePanel();
             }
 
         } else if (e.getSource() == updateBtn) {
@@ -334,7 +362,7 @@ public class MainPanel extends JFrame {
             boolArray[1] = sex.isVisible();
             boolArray[2] = department.isVisible();
 
-            if (jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo))
+            if (jdbc.deleteEmployee(text, sex, department, boolArray, category))
                 JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
             else JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
         } else if (e.getSource() == insertBtn) {
@@ -350,18 +378,15 @@ public class MainPanel extends JFrame {
     private void printSelectedItems() {
         //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
         jdbc.connectJDBC();
-        model = jdbc.printReport(model, items, categoryCombo, text, sex, department); // 모델이 반환됨
+        model = jdbc.printReport(model, items, category, text, sex, department); // 모델이 반환됨
         //showTable(model);
         jdbc.disconnectJDBC();
     }
 
-    private boolean isSelected() {
+    private boolean hasSelectAttribute() {
         boolean isSelected = false;
         for (JCheckBox item : items) {
             if (item.isSelected()) {
-                if (item.equals("Name")) {
-                    NAME_COLUMN = 1;
-                }
                 isSelected = true;
             }
         }
@@ -369,11 +394,6 @@ public class MainPanel extends JFrame {
     }
 
     public class CheckboxModelListener implements TableModelListener {
-        private JPanel selectedEmpPanel;
-
-        public CheckboxModelListener(JPanel selectedEmpPanel) {
-            this.selectedEmpPanel = selectedEmpPanel;
-        }
 
         public void tableChanged(TableModelEvent e) {
             int row = e.getFirstRow();
@@ -387,14 +407,14 @@ public class MainPanel extends JFrame {
                     if (checked) {
                         for (int i = 0; i < table.getRowCount(); i++) {
                             if (table.getValueAt(i, 0) == Boolean.TRUE) {
-                                dShow.append((String) table.getValueAt(i, NAME_COLUMN)).append("    ");
+//                                dShow.append((String) table.getValueAt(i, )).append("    ");
                             }
                         }
                         selectedEmpStrings.setText(dShow.toString());
                     } else {
                         for (int i = 0; i < table.getRowCount(); i++) {
                             if (table.getValueAt(i, 0) == Boolean.TRUE) {
-                                dShow.append((String) table.getValueAt(i, 1)).append("    ");
+//                                dShow.append((String) table.getValueAt(i, )).append("    ");
 
                             }
                         }
