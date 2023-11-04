@@ -87,10 +87,9 @@ class SubFrame extends JFrame implements ActionListener {
                 if(jdbc.insertEmployeeData(fields, sexCategory))
                     JOptionPane.showMessageDialog(this, "직원 정보 추가 성공");
                 else JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
-                jdbc.disconnectJDBC();
-                dispose();
             }
         }
+        dispose();
     }
 
     private boolean checkNotNullFields() {

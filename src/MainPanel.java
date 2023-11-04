@@ -4,8 +4,11 @@ import src.JDBC.JDBC;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -352,36 +355,24 @@ public class MainPanel extends JFrame {
                 getTablePanel();
             }
 
-        } else if (e.getSource() == updateBtn) {
+        } else if (e.getSource().equals(updateBtn)) {
             //업데이트 버튼 누르면
 
-        } else if (e.getSource() == deleteBtn) {
+        } else if (e.getSource().equals(deleteBtn)) {
             // 삭제 버튼 누르면
-            boolean[] boolArray = {false, false, false};
-            boolArray[0] = text.isVisible();
-            boolArray[1] = sex.isVisible();
-            boolArray[2] = department.isVisible();
 
-            if (jdbc.deleteEmployee(text, sex, department, boolArray, category))
-                JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
-            else JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
-        } else if (e.getSource() == insertBtn) {
-            if (sf == null) {
-                sf = new SubFrame();
-            } else {
+        } else if (e.getSource().equals(insertBtn)) {
+            // 삽입 버튼 누르면
+            if (sf != null) {
                 sf.dispose();
-                sf = new SubFrame();
             }
+            sf = new SubFrame();
+
         }
+//        jdbc.disconnectJDBC();
+
     }
 
-    private void printSelectedItems() {
-        //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
-        jdbc.connectJDBC();
-        model = jdbc.printReport(model, items, category, text, sex, department); // 모델이 반환됨
-        //showTable(model);
-        jdbc.disconnectJDBC();
-    }
 
     private boolean hasSelectAttribute() {
         boolean isSelected = false;

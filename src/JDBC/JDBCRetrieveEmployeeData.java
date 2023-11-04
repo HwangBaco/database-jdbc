@@ -73,7 +73,7 @@ public class JDBCRetrieveEmployeeData {
 
         // parameter 값을 토대로 where절 완성
         if(!attribute.isBlank() && !condition.isBlank()){
-            if(attribute.equals("Salary")) whereClause = baseWhereCluase + attribute + " >= " + "\"" + condition + "\"";
+            if(attribute.equals("연봉")) whereClause = (baseWhereCluase + "salary" + " >= " + condition);
             else whereClause = baseWhereCluase + attribute + " = " + "\"" + condition + "\"";
         }
         System.out.println("Generated Query : " + selectClause + fromClause + whereClause);
