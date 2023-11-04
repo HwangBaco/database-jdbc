@@ -16,6 +16,7 @@ import static src.Main.*;
 
 public class MainPanel extends JFrame {
     MainFrame frame;
+    SubFrame subFrame;
 
     // 컴포넌트 판넬
     JPanel searchRangePanel, searchItemPanel, selectedEmpPanel, headcountPanel, updatePanel, deletePanel, insertPanel;
@@ -324,7 +325,6 @@ public class MainPanel extends JFrame {
     }
 
 
-    SubFrame sf;
 
     /*
      * 버튼 이벤트리스너 관리
@@ -380,10 +380,10 @@ public class MainPanel extends JFrame {
 
         } else if (e.getSource().equals(insertBtn)) {
             // 삽입 버튼 누르면
-            if (sf != null) {
-                sf.dispose();
+            if (subFrame != null) {
+                subFrame.dispose();
             }
-            sf = new SubFrame();
+            subFrame = new SubFrame();
 
         }
 
