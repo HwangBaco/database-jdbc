@@ -4,15 +4,16 @@ import src.JDBC.JDBC;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import static src.Main.*;
 
-public class MainPanel extends JFrame implements MouseListener {
+public class MainPanel extends JFrame {
     private static final int CHECKBOX_NUM = 8;
     final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
     final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
@@ -21,11 +22,22 @@ public class MainPanel extends JFrame implements MouseListener {
     JButton searchBtn, updateBtn, deleteBtn, insertBtn;
     String[] departmentStrings = {"", "Research", "Administration", "Headquarters"};
     DefaultTableModel model = new DefaultTableModel(0, 0); // edited
-    JTable table = new JTable(this.model); // edited
+
+    private int NAME_COLUMN = 0;
+    JTable table = new JTable(this.model){
+        @Override
+        public Class getColumnClass(int column) {
+            if (column == 0) {
+                return Boolean.class;
+            } else
+                return String.class;
+        }
+    }; // edited
     JCheckBox[] items; // edited
     JPanel searchRangePanel, searchItemPanel, selectedEmpPanel,headcountPanel, updatePanel, deletePanel, insertPanel;
-    JPanel topPanel, bottomPanel, leftBottomPanel;
+    JPanel topPanel, verticalPanel, bottomPanel;
 
+    private JLabel selectedEmpStrings = new JLabel();
     JTextField text;
     JComboBox<String> sex;
     JComboBox<String> department;
@@ -60,14 +72,20 @@ public class MainPanel extends JFrame implements MouseListener {
         commandPanels.add(updatePanel);
         commandPanels.add(deletePanel);
         commandPanels.add(insertPanel);
-        leftBottomPanel = setLeftBottomPanel(commandPanels);
+        bottomPanel = setBottomPanel(commandPanels);
 
+        JPanel midPanel = new JPanel();
+        midPanel.add(selectedEmpPanel);
+        midPanel.setLayout(new BoxLayout(midPanel, BoxLayout.X_AXIS));
 
-        ArrayList<JPanel> bottomPanels = new ArrayList<>();
-        bottomPanels.add(leftBottomPanel);
-        bottomPanels.add(selectedEmpPanel);
+        ArrayList<JPanel> lowPanels = new ArrayList<>();
+        lowPanels.add(midPanel);
+        lowPanels.add(bottomPanel);
 
-        bottomPanel = setBottom(bottomPanels);
+        verticalPanel = setVerticalPanel(lowPanels);
+
+        add(topPanel, BorderLayout.NORTH);
+        add(verticalPanel, BorderLayout.SOUTH);
 
         jdbc.connectJDBC();
     }
@@ -75,8 +93,8 @@ public class MainPanel extends JFrame implements MouseListener {
     public JPanel getTopPanel(){
         return this.topPanel;
     }
-    public JPanel getBottomPanel(){
-        return this.leftBottomPanel;
+    public JPanel getVerticalPanel(){
+        return this.bottomPanel;
     }
 
 
@@ -144,16 +162,16 @@ public class MainPanel extends JFrame implements MouseListener {
 
         searchItemPanel.add(searchBtn);
         searchItemPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        searchBtn.addActionListener(this::actionPerformed);
+        searchBtn.addActionListener(this::click);
 
         return searchItemPanel;
     }
 
-    public JPanel setTablePanel(){
+    public JPanel getTablePanel(){
         JPanel tablePanel = new JPanel();
         JScrollPane scrollPane = new JScrollPane(this.table);
-        table.addMouseListener(this);
-        scrollPane.setPreferredSize(new Dimension(950, 300));
+        table.getModel().addTableModelListener(new CheckboxModelListener(selectedEmpPanel));
+        scrollPane.setPreferredSize(new Dimension(1000, 300));
         tablePanel.add(scrollPane);
         return tablePanel;
     }
@@ -161,17 +179,15 @@ public class MainPanel extends JFrame implements MouseListener {
         JPanel selectedEmployeePanel = new JPanel();
 
         JLabel selectedEmpLabel = new JLabel("선택한 직원 :  ");
-        String employee = ""; // 나중에 입력
-        JLabel selectedEmps = new JLabel(employee);
 
         // apply font
         Font font = new Font("SansSerif", Font.BOLD, 20);
         selectedEmpLabel.setFont(font);
-        selectedEmps.setFont(font);
+        selectedEmpStrings.setFont(font);
 
         //
         selectedEmployeePanel.add(selectedEmpLabel);
-        selectedEmployeePanel.add(selectedEmps);
+        selectedEmployeePanel.add(selectedEmpStrings);
 
         selectedEmployeePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
@@ -234,7 +250,7 @@ public class MainPanel extends JFrame implements MouseListener {
         });
 
         updateItemPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        updateBtn.addActionListener(this::actionPerformed);
+        updateBtn.addActionListener(this::click);
 
         return updateItemPanel;
     }
@@ -243,7 +259,7 @@ public class MainPanel extends JFrame implements MouseListener {
         JPanel deletePanel = new JPanel();
         deletePanel.add(deleteBtn);
         deletePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        deleteBtn.addActionListener(this::actionPerformed);
+        deleteBtn.addActionListener(this::click);
         return deletePanel;
     }
 
@@ -251,7 +267,7 @@ public class MainPanel extends JFrame implements MouseListener {
         JPanel insertPanel = new JPanel();
         insertPanel.add(insertBtn);
         insertPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        insertBtn.addActionListener(this::actionPerformed);
+        insertBtn.addActionListener(this::click);
         return insertPanel;
     }
 
@@ -265,7 +281,7 @@ public class MainPanel extends JFrame implements MouseListener {
         return top;
     }
 
-    public JPanel setLeftBottomPanel(ArrayList<JPanel> panels){
+    public JPanel setBottomPanel(ArrayList<JPanel> panels){
         JPanel bottomPanel = new JPanel();
         for (JPanel panel : panels) {
             bottomPanel.add(panel);
@@ -274,7 +290,7 @@ public class MainPanel extends JFrame implements MouseListener {
         return bottomPanel;
     }
 
-    public JPanel setBottom(ArrayList<JPanel> panels){
+    public JPanel setVerticalPanel(ArrayList<JPanel> panels){
         JPanel bottomPanel = new JPanel();
         for (JPanel panel : panels) {
             bottomPanel.add(panel);
@@ -286,7 +302,7 @@ public class MainPanel extends JFrame implements MouseListener {
     }
 
     //MouseListener override 함수
-    @Override
+    /*@Override
     public void mouseClicked(MouseEvent e) {
         int row = table.getSelectedRow();
         for (int i = 0; i < table.getColumnCount(); i++) {
@@ -304,7 +320,7 @@ public class MainPanel extends JFrame implements MouseListener {
     }
     @Override
     public void mouseExited(MouseEvent e) {
-    }
+    }*/
 
 
     SubFrame sf;
@@ -312,7 +328,7 @@ public class MainPanel extends JFrame implements MouseListener {
     /*
     * 버튼 이벤트리스너 관리
     * */
-    public void actionPerformed(ActionEvent e) {
+    public void click(ActionEvent e) {
         if (e.getSource() == searchBtn) {
             if (!isSelected()) {
                 JOptionPane.showMessageDialog(null, "하나 이상의 항목를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
@@ -357,10 +373,52 @@ public class MainPanel extends JFrame implements MouseListener {
         boolean isSelected = false;
         for(JCheckBox item : items){
             if(item.isSelected()){
+                if (item.equals("Name")) {
+                    NAME_COLUMN = 1;
+                }
                 isSelected = true;
             }
         }
         return isSelected;
+    }
+    public class CheckboxModelListener implements TableModelListener {
+        private JPanel selectedEmpPanel;
+
+        public CheckboxModelListener(JPanel selectedEmpPanel) {
+            this.selectedEmpPanel = selectedEmpPanel;
+        }
+
+        public void tableChanged(TableModelEvent e) {
+            int row = e.getFirstRow();
+            int column = e.getColumn();
+            if (column == 0) {
+                TableModel model = (TableModel) e.getSource();
+                String columnName = model.getColumnName(1);
+                Boolean checked = (Boolean) model.getValueAt(row, column);
+                if (columnName == "NAME") {
+                    String dShow;
+                    if (checked) {
+                        dShow = "";
+                        for (int i = 0; i < table.getRowCount(); i++) {
+                            if (table.getValueAt(i, 0) == Boolean.TRUE) {
+                                dShow += (String) table.getValueAt(i, NAME_COLUMN) + "    ";
+
+                            }
+                        }
+                        selectedEmpStrings.setText(dShow);
+                    } else {
+                        dShow = "";
+                        for (int i = 0; i < table.getRowCount(); i++) {
+                            if (table.getValueAt(i, 0) == Boolean.TRUE) {
+                                dShow += (String) table.getValueAt(i, 1) + "    ";
+
+                            }
+                        }
+                        selectedEmpStrings.setText(dShow);
+                    }
+                }
+            }
+        }
     }
 
 }

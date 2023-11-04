@@ -33,7 +33,7 @@ public class JDBCRetrieveEmployeeData {
         if(attribute.equals("Sex")) return Objects.requireNonNull(sex.getSelectedItem()).toString();
         else return text.getText();
     }
-    
+
     // attributeMap에 value가 존재한다면 해당 value 반환, 아니라면 매개변수 자체가 attribute 이름이 되므로 반환
     private String parseAttribute(String attribute){
         if(attributeMap.get(attribute) != null){
@@ -43,7 +43,7 @@ public class JDBCRetrieveEmployeeData {
         }
     }
 
-    // checkBox에 선택된 attribute를 토대로 sql 구문을 만드는 함수 
+    // checkBox에 선택된 attribute를 토대로 sql 구문을 만드는 함수
     private String createSql(JCheckBox[] checkBox, String attribute, String condition){
         // select문에 추가될 attribute들을 추가할 list
         ArrayList<String> attributes = new ArrayList<>();
@@ -79,13 +79,13 @@ public class JDBCRetrieveEmployeeData {
         System.out.println("Generated Query : " + selectClause + fromClause + whereClause);
         return selectClause + fromClause + whereClause;
     }
-    
+
     // sql 쿼리를 만들어 실행하는 함수
     public DefaultTableModel printReport(DefaultTableModel model, JCheckBox[] checkBox,
                                          JComboBox<String> category, JTextField text, JComboBox<String> sex, JComboBox<String> department, Connection conn) throws SQLException {
         model.setColumnCount(0);
         model.setNumRows(0);
-        String[] record = new String[100];
+        //String[] record = new String[100];
         Vector<String> header = new Vector<>();
 
         // 조건을 parsing하고 sql에 생성 함수의 매개변수로 넘긴다.
@@ -99,20 +99,28 @@ public class JDBCRetrieveEmployeeData {
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnCount = rsmd.getColumnCount();
             model.setColumnCount(columnCount);
+            System.out.printf("%d%n", model.getColumnCount());
 
             // attribute 이름을 전부 가져오는 구문
+            header.add("선택");
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = rsmd.getColumnName(i); // 열의 이름 가져오기
+                System.out.printf("%s ", columnName);
                 header.add(columnName);
             }
             model.setColumnIdentifiers(header);
+            System.out.println();
 
             // sql의 결과를 모두 출력하는 구문
             while (rs.next()) {
+                Vector<Object> record = new Vector<>();
+                record.add(false);
                 for (int i = 1; i <= columnCount; i++) {
-                    record[i - 1] = rs.getString(i);
+                    record.add(rs.getString(i));
+                    System.out.printf("%s ", record.get(i));
                 }
                 model.addRow(record);
+                System.out.println();
             }
         } catch (SQLException e){
             System.out.println("쿼리문 오류");
