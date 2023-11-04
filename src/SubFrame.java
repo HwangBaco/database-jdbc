@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.sql.*;
 
+import static src.LoginFrame.*;
 import static src.Main.*;
 
 class SubFrame extends JFrame implements ActionListener {
@@ -27,7 +28,6 @@ class SubFrame extends JFrame implements ActionListener {
 
 
     public SubFrame() {
-        super("직원 등록");
         setSize(500, 500);
         setLocation(350, 50);
 
