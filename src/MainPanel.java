@@ -5,6 +5,7 @@ import src.JDBC.JDBC;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -16,6 +17,7 @@ import static src.Main.*;
 
 public class MainPanel extends JFrame {
     MainFrame frame;
+    SubFrame subFrame;
 
     // 컴포넌트 판넬
     JPanel searchRangePanel, searchItemPanel, selectedEmpPanel, headcountPanel, updatePanel, deletePanel, insertPanel;
@@ -324,7 +326,6 @@ public class MainPanel extends JFrame {
     }
 
 
-    SubFrame sf;
 
     /*
      * 버튼 이벤트리스너 관리
@@ -352,13 +353,17 @@ public class MainPanel extends JFrame {
                 try {
                     jdbc.updateEmployeeDate(ssnList, updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox);
                     JOptionPane.showMessageDialog(this, "직원 정보 수정 성공");
+                    ssnList = new HashSet<>(); // reset ssnList
+                    getTableView(); // refresh table
+                } catch(SQLIntegrityConstraintViolationException sqlIntegrityException){
+                    JOptionPane.showMessageDialog(this, "개체 무결성 위반 : 동일한 값을 가진 키가 이미 존재합니다!!");
                 } catch (SQLException sqlException) {
-                    JOptionPane.showMessageDialog(this, "직원 정보 수정 실패");
+                    JOptionPane.showMessageDialog(this, "직원 정보 수정 실패 : 유효하지 않은 값입니다.");
                 } finally {
                     jdbc.disconnectJDBC();
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "삭제를 위해선 Ssn을 반드시 조회해야 합니다!", "경고", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "수정을 위해선 하나 이상의 Ssn을 반드시 선택해야 합니다!", "경고", JOptionPane.WARNING_MESSAGE);
             }
         } else if (e.getSource().equals(deleteBtn)) {
             if (hasSsnAttribute()) {
@@ -366,7 +371,6 @@ public class MainPanel extends JFrame {
                 try {
                     jdbc.deleteEmployee(ssnList);
                     JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
-
                     ssnList = new HashSet<>(); // reset ssnList
                     getTableView(); // refresh table
                 } catch (SQLException sqlException) {
@@ -380,10 +384,10 @@ public class MainPanel extends JFrame {
 
         } else if (e.getSource().equals(insertBtn)) {
             // 삽입 버튼 누르면
-            if (sf != null) {
-                sf.dispose();
+            if (subFrame != null) {
+                subFrame.dispose();
             }
-            sf = new SubFrame();
+            subFrame = new SubFrame();
 
         }
 
