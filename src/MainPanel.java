@@ -4,6 +4,7 @@ import src.JDBC.JDBC;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -42,6 +43,12 @@ public class MainPanel extends JFrame {
     JComboBox<String> sex;
     JComboBox<String> department;
     JComboBox<String> categoryCombo;
+
+    // update시에 변수로 넘겨주기 위해 전역변수로 뺐습니다.
+    JComboBox<String> updateItemComboBox;
+    JTextField updateTextBox;
+    JComboBox<String> sexComboBox;
+    JComboBox<String> departmentComboBox;
 
     JDBC jdbc = new JDBC(ID, PW, DB_NAME);
 
@@ -185,7 +192,6 @@ public class MainPanel extends JFrame {
         selectedEmpLabel.setFont(font);
         selectedEmpStrings.setFont(font);
 
-        //
         selectedEmployeePanel.add(selectedEmpLabel);
         selectedEmployeePanel.add(selectedEmpStrings);
 
@@ -212,11 +218,11 @@ public class MainPanel extends JFrame {
         JPanel updateItemPanel = new JPanel();
         JLabel updateItemLabel = new JLabel("수정 ");
 
-        JComboBox<String> updateItemComboBox = new JComboBox<>(searchItems);
+        updateItemComboBox = new JComboBox<>(searchItems);
 
-        JTextField updateTextBox = new JTextField(20);
-        JComboBox<String> sexComboBox = new JComboBox<>(this.sexStrings);
-        JComboBox<String> departmentComboBox = new JComboBox<>(departmentStrings);
+        updateTextBox = new JTextField(20);
+        sexComboBox = new JComboBox<>(this.sexStrings);
+        departmentComboBox = new JComboBox<>(departmentStrings);
 
         updateItemPanel.add(updateItemLabel);
         updateItemPanel.add(updateItemComboBox);
@@ -301,33 +307,8 @@ public class MainPanel extends JFrame {
         return bottomPanel;
     }
 
-    //MouseListener override 함수
-    /*@Override
-    public void mouseClicked(MouseEvent e) {
-        int row = table.getSelectedRow();
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            //System.out.print(table.getModel().getValueAt(row, i )+"\t"); //삭제할 때 필요한 record 정보
-        } }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }*/
-
-
     SubFrame sf;
-
-    /*
-    * 버튼 이벤트리스너 관리
-    * */
+    // 버튼 이벤트리스너 관리
     public void click(ActionEvent e) {
         if (e.getSource() == searchBtn) {
             if (!isSelected()) {
@@ -338,6 +319,17 @@ public class MainPanel extends JFrame {
 
         } else if (e.getSource() == updateBtn) {
             //업데이트 버튼 누르면
+            System.out.println("updateItemComboBox = " + updateItemComboBox.getSelectedItem());
+            System.out.println("updateTextBox.getText() = " + updateTextBox.getText());
+            System.out.println("sexComboBox = " + sexComboBox.getSelectedItem());
+            System.out.println("departmentComboBox = " + departmentComboBox.getSelectedItem());
+            jdbc.connectJDBC();
+//            try {
+//                //jdbc.updateEmployeeDate(updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox);
+//            } catch (SQLException sqlException){
+//                System.out.println("오류..");
+//            }
+            jdbc.disconnectJDBC();
 
         } else if (e.getSource() == deleteBtn) {
             // 삭제 버튼 누르면
@@ -347,17 +339,18 @@ public class MainPanel extends JFrame {
             boolArray[2] = department.isVisible();
 
             jdbc.connectJDBC();
-            if(jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo))
+            try{
+                jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo);
                 JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
-            else JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
+            } catch (SQLException sqlException) {
+                JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
+            }
             jdbc.disconnectJDBC();
         } else if (e.getSource() == insertBtn) {
-            if (sf == null) {
-                sf = new SubFrame();
-            } else {
+            if (sf != null) {
                 sf.dispose();
-                sf = new SubFrame();
             }
+            sf = new SubFrame();
         }
     }
 
@@ -365,7 +358,6 @@ public class MainPanel extends JFrame {
         //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
         jdbc.connectJDBC();
         model = jdbc.printReport(model, items, categoryCombo, text, sex, department); // 모델이 반환됨
-        //showTable(model);
         jdbc.disconnectJDBC();
     }
 
@@ -381,6 +373,7 @@ public class MainPanel extends JFrame {
         }
         return isSelected;
     }
+
     public class CheckboxModelListener implements TableModelListener {
         private JPanel selectedEmpPanel;
 

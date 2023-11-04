@@ -1,5 +1,6 @@
 package src;
 
+import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
 import src.JDBC.JDBC;
 
 import java.awt.FlowLayout;
@@ -9,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.sql.*;
+
+import static src.Main.*;
 
 class SubFrame extends JFrame implements ActionListener {
     private final String[] labels = {"First Name","Middle Initial","Last Name","Ssn","Birthdate","Address", "Sex", "Salary","Super_ssn", "Dno"};
@@ -20,10 +23,8 @@ class SubFrame extends JFrame implements ActionListener {
 
     // SubFrame에서 JDBC 클래스를 사용하기 위한 변수 생성 및 인스턴스 생성
     // 사용자에 따라 id, password 변경
-    private static final String dbacct = "root";
-    private static final String passwrd = "newabt12!";
-    private static final String dbname = "company_forhw";
-    JDBC jdbc = new JDBC(dbacct, passwrd, dbname);
+    JDBC jdbc = new JDBC(ID, PW, DB_NAME);
+
 
     public SubFrame() {
         super("직원 등록");
@@ -41,11 +42,11 @@ class SubFrame extends JFrame implements ActionListener {
         titlePanel.add(empty);
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
 
-        sexCategory = new JComboBox<String>(sex);
+        sexCategory = new JComboBox<>(sex);
         JPanel attributePanel = new JPanel(new GridLayout(11,2,5,10));
         for(int i=0;i<10;i++) {
             attributePanel.add(new JLabel(labels[i]));
-            if(labels[i] == "Sex"){
+            if(labels[i].equals("Sex")){
                 attributePanel.add(sexCategory);
             }else {
                 fields[i] = new JTextField(25);
@@ -78,17 +79,25 @@ class SubFrame extends JFrame implements ActionListener {
             if (!checkNotNullFields()) {
                 //fname, lname, ssn에 아무것도 입력되지 않았다면 명령 거부(NOT NULL)
                 JOptionPane.showMessageDialog(this, "Fname, Lname, Ssn에는 값이 들어가야 합니다.");
-            } else if(!isValidDate()) {
+            } else if (!isValidDate()) {
                 //Bdate가 yyyy-mm-dd 형식이 아니라면 명령 거부(DATE 형 속성)
                 JOptionPane.showMessageDialog(this, "생일에는 yyyy-mm-dd 형식이 들어가야 합니다.");
             } else {
                 //제약조건 만족시 jdbc 연결 후 INSERT 명령 수행 후 연결해제
                 jdbc.connectJDBC();
-                if(jdbc.insertEmployeeData(fields, sexCategory))
+                try {
+                    jdbc.insertEmployeeData(fields, sexCategory);
                     JOptionPane.showMessageDialog(this, "직원 정보 추가 성공");
-                else JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
-                jdbc.disconnectJDBC();
-                dispose();
+                    dispose();
+                } catch (SQLIntegrityConstraintViolationException sqlIntegrityException) {
+                    JOptionPane.showMessageDialog(this, "개체 무결성 위반 : 동일한 값을 가진 키가 이미 존재합니다!!");
+                } catch (MysqlDataTruncation mysqlDataTruncation) {
+                    JOptionPane.showMessageDialog(this, "날짜 값이 유효하지 않습니다!!");
+                } catch (SQLException SQLException) {
+                    JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
+                } finally {
+                    jdbc.disconnectJDBC();
+                }
             }
         }
     }
