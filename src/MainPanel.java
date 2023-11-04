@@ -5,8 +5,7 @@ import src.JDBC.JDBC;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -40,10 +39,12 @@ public class MainPanel extends JFrame {
     JComboBox<String> department;
     JComboBox<String> category;
 
+    Set<String> ssnList = new HashSet();
+
 
     // table
     JPanel tablePanel;
-//    JPanel tablePanel = new JPanel();
+    //    JPanel tablePanel = new JPanel();
     JScrollPane scrollPane;
     DefaultTableModel model = new DefaultTableModel(0, 0) {
         @Override
@@ -73,8 +74,6 @@ public class MainPanel extends JFrame {
     // 업데이트 해줘야 하는 필드는 공통으로 관리
     public JLabel headCountNumber = new JLabel();
     public JLabel selectedEmpStrings = new JLabel();
-
-
 
 
     // update시에 변수로 넘겨주기 위해 전역변수로 뺐습니다.
@@ -186,7 +185,7 @@ public class MainPanel extends JFrame {
     public JPanel getTablePanel() {
         tablePanel = new JPanel();
         scrollPane = new JScrollPane(this.table);
-        table.getModel().addTableModelListener(new CheckboxModelListener());
+        table.getModel().addTableModelListener(new modelEventListener());
         scrollPane.setPreferredSize(new Dimension(1000, 300));
         tablePanel.add(scrollPane);
         frame.add(tablePanel, BorderLayout.CENTER);
@@ -338,32 +337,16 @@ public class MainPanel extends JFrame {
         }
 
         if (e.getSource().equals(searchBtn)) {
-            jdbc.connectJDBC();
 
-            if (!hasSelectAttribute()) {
-                JOptionPane.showMessageDialog(null, "하나 이상의 항목를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
-            } else {
-                model = jdbc.printReport(model, items, category, text, sex, department); // 모델이 반환됨
-                actionAfterCommand = true;
-                table = new JTable(model) {
-                    @Override
-                    public Class getColumnClass(int column) {
-                        if (column == 0) {
-                            return Boolean.class;
-                        } else
-                            return String.class;
-                    }
-                };
-                selectedEmpStrings.setText(" ");
-                int rowCount = model.getRowCount();
-                headCountNumber.setText(String.valueOf(rowCount));
-                getTablePanel();
+            if (hasSelectAttribute()) {
+                jdbc.connectJDBC();
+                getTableView();
                 jdbc.disconnectJDBC();
-
+            } else {
+                JOptionPane.showMessageDialog(null, "하나 이상의 항목를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
             }
 
         } else if (e.getSource().equals(updateBtn)) {
-            //업데이트 버튼 누르면
             System.out.println("updateItemComboBox = " + updateItemComboBox.getSelectedItem());
             System.out.println("updateTextBox.getText() = " + updateTextBox.getText());
             System.out.println("sexComboBox = " + sexComboBox.getSelectedItem());
@@ -377,21 +360,23 @@ public class MainPanel extends JFrame {
             jdbc.disconnectJDBC();
 
         } else if (e.getSource().equals(deleteBtn)) {
-            // 삭제 버튼 누르면
-            jdbc.connectJDBC();
+            if (hasSsnAttribute()) {
 
-            boolean[] boolArray = {false, false, false};
-            boolArray[0] = text.isVisible();
-            boolArray[1] = sex.isVisible();
-            boolArray[2] = department.isVisible();
+                jdbc.connectJDBC();
+                try {
+                    jdbc.deleteEmployee(ssnList);
+                    JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
 
-            try{
-                jdbc.deleteEmployee(text, sex, department, boolArray, category);
-                JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
-            } catch (SQLException sqlException) {
-                JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
+                    ssnList = new HashSet<>(); // reset ssnList
+                    getTableView(); // refresh table
+                } catch (SQLException sqlException) {
+                    JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
+                } finally {
+                    jdbc.disconnectJDBC();
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "삭제를 위해선 Ssn을 반드시 조회해야 합니다!", "경고", JOptionPane.WARNING_MESSAGE);
             }
-            jdbc.disconnectJDBC();
 
         } else if (e.getSource().equals(insertBtn)) {
             // 삽입 버튼 누르면
@@ -404,6 +389,27 @@ public class MainPanel extends JFrame {
 
     }
 
+    private void getTableView() {
+        model = jdbc.printReport(model, items, category, text, sex, department); // 모델이 반환됨
+        actionAfterCommand = true;
+        table = new JTable(model) {
+            @Override
+            public Class getColumnClass(int column) {
+                if (column == 0) {
+                    return Boolean.class;
+                } else
+                    return String.class;
+            }
+        };
+        selectedEmpStrings.setText(" ");
+        int rowCount = model.getRowCount();
+        headCountNumber.setText(String.valueOf(rowCount));
+        getTablePanel();
+    }
+
+    private boolean isCheckedRow(int i) {
+        return table.getValueAt(i, 0).equals(true);
+    }
 
     private boolean hasSelectAttribute() {
         boolean isSelected = false;
@@ -415,32 +421,58 @@ public class MainPanel extends JFrame {
         return isSelected;
     }
 
-    public class CheckboxModelListener implements TableModelListener {
+    private boolean hasSsnAttribute() {
+        boolean isSelected = false;
+        for (JCheckBox item : items) {
+            if (item.getText().equals("Ssn") && item.isSelected()) {
+                isSelected = true;
+            }
+        }
+        return isSelected;
+    }
+
+    private class modelEventListener implements TableModelListener {
 
         public void tableChanged(TableModelEvent e) {
             int row = e.getFirstRow();
             int column = e.getColumn();
             if (column == 0) {
                 TableModel model = (TableModel) e.getSource();
-                String columnName = model.getColumnName(1);
-                Boolean checked = (Boolean) model.getValueAt(row, column);
-                if (columnName.equals("Name")) {
+                String firstColumn = model.getColumnName(1);
+                String secondColumn = model.getColumnName(2);
+
+                Boolean isChecked = (Boolean) model.getValueAt(row, 0);
+
+                if (firstColumn.equals("Name")) {
                     StringBuilder empNames = new StringBuilder();
-                    if (checked) {
+                    if (isChecked) {
+                        if (secondColumn.equals("Ssn")) {
+                            ssnList.add(model.getValueAt(row, 2).toString());
+                        }
                         for (int i = 0; i < table.getRowCount(); i++) {
-                            if (table.getValueAt(i, 0) == Boolean.TRUE) {
-                                empNames.append((String) table.getValueAt(i, 1)).append("    ");
+                            if (isCheckedRow(i)) {
+                                empNames.append(table.getValueAt(i, 1)).append("    ");
                             }
                         }
                         selectedEmpStrings.setText(empNames.toString());
                     } else {
+                        if (secondColumn.equals("Ssn")) {
+                            ssnList.remove(model.getValueAt(row, 2).toString());
+                        }
                         for (int i = 0; i < table.getRowCount(); i++) {
-                            if (table.getValueAt(i, 0) == Boolean.TRUE) {
-                                empNames.append((String) table.getValueAt(i, 1)).append("    ");
+                            if (isCheckedRow(i)) {
+                                empNames.append(table.getValueAt(i, 1)).append("    ");
 
                             }
                         }
                         selectedEmpStrings.setText(empNames.toString());
+                    }
+                }
+                if (firstColumn.equals("Ssn")) {
+                    if (isChecked) {
+                        ssnList.add(model.getValueAt(row, 1).toString());
+                    } else {
+                        ssnList.remove(model.getValueAt(row, 1).toString());
                     }
                 }
             }
