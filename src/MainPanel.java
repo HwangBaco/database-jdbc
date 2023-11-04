@@ -44,25 +44,8 @@ public class MainPanel extends JFrame {
     JPanel tablePanel;
 //    JPanel tablePanel = new JPanel();
     JScrollPane scrollPane;
-    DefaultTableModel model = new DefaultTableModel(0, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            if (column > 0) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-    };
-    JTable table = new JTable(this.model) {
-        @Override
-        public Class getColumnClass(int column) {
-            if (column == 0) {
-                return Boolean.class;
-            } else
-                return String.class;
-        }
-    };
+    DefaultTableModel model = new DefaultTableModel(0, 0);
+    JTable table = new JTable(this.model);
 
     public static Map<String, Integer> columnIdxMap = new HashMap<>();
 
@@ -72,9 +55,6 @@ public class MainPanel extends JFrame {
     // 업데이트 해줘야 하는 필드는 공통으로 관리
     public JLabel headCountNumber = new JLabel();
     public JLabel selectedEmpStrings = new JLabel();
-
-
-
 
     JDBC jdbc = new JDBC(ID, PW, DB_NAME);
 
@@ -107,7 +87,7 @@ public class MainPanel extends JFrame {
     }
 
     public JPanel getContextPanel() {
-        return this.bottomPanel;
+        return this.contextPanel;
     }
 
 
@@ -167,7 +147,6 @@ public class MainPanel extends JFrame {
             searchItemPanel.add(items[i]);
             columnIdxMap.put(searchItems[i], -1);
         }
-
 
         searchItemPanel.add(searchBtn);
         searchItemPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -403,22 +382,22 @@ public class MainPanel extends JFrame {
                 String columnName = model.getColumnName(1);
                 Boolean checked = (Boolean) model.getValueAt(row, column);
                 if (columnName.equals("Name")) {
-                    StringBuilder dShow = new StringBuilder();
+                    StringBuilder empNames = new StringBuilder();
                     if (checked) {
                         for (int i = 0; i < table.getRowCount(); i++) {
                             if (table.getValueAt(i, 0) == Boolean.TRUE) {
-//                                dShow.append((String) table.getValueAt(i, )).append("    ");
+                                empNames.append((String) table.getValueAt(i, 1)).append("    ");
                             }
                         }
-                        selectedEmpStrings.setText(dShow.toString());
+                        selectedEmpStrings.setText(empNames.toString());
                     } else {
                         for (int i = 0; i < table.getRowCount(); i++) {
                             if (table.getValueAt(i, 0) == Boolean.TRUE) {
-//                                dShow.append((String) table.getValueAt(i, )).append("    ");
+                                empNames.append((String) table.getValueAt(i, 1)).append("    ");
 
                             }
                         }
-                        selectedEmpStrings.setText(dShow.toString());
+                        selectedEmpStrings.setText(empNames.toString());
                     }
                 }
             }
