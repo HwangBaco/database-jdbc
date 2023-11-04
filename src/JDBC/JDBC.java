@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class JDBC {
 
-    private static Connection conn;
+    private Connection conn;
     private final JDBCConnect jdbcConnect;
     private final JDBCRetrieveEmployeeData jdbcPrintReport;
     private final JDBCInsertEmployeeData jdbcInsertEmployeeData;
@@ -52,9 +52,9 @@ public class JDBC {
         return model;
     }
 
-    public void updateEmployeeDate(DefaultTableModel model, JComboBox<String> updateItemComboBox,
+    public void updateEmployeeDate(Set<String> ssnList, JComboBox<String> updateItemComboBox,
                                    JTextField updateTextBox, JComboBox<String> sexComboBox, JComboBox<String> departmentComboBox) throws SQLException{
-        jdbcUpdateEmployeeData.updateEmployeeDate(model, updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox, conn);
+        jdbcUpdateEmployeeData.updateEmployeeDate(ssnList, updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox, conn);
     }
 
     public void insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory) throws SQLException{
@@ -62,10 +62,6 @@ public class JDBC {
      }
 
     public void deleteEmployee(Set<String> ssnList) throws SQLException{
-        try {
-            jdbcDeleteEmployeeData.deleteEmployee(ssnList, conn);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        jdbcDeleteEmployeeData.deleteEmployee(ssnList, conn);
     }
 }

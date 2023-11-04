@@ -39,7 +39,7 @@ public class MainPanel extends JFrame {
     JComboBox<String> department;
     JComboBox<String> category;
 
-    Set<String> ssnList = new HashSet();
+    Set<String> ssnList = new HashSet<>();
 
 
     // table
@@ -347,21 +347,21 @@ public class MainPanel extends JFrame {
             }
 
         } else if (e.getSource().equals(updateBtn)) {
-            System.out.println("updateItemComboBox = " + updateItemComboBox.getSelectedItem());
-            System.out.println("updateTextBox.getText() = " + updateTextBox.getText());
-            System.out.println("sexComboBox = " + sexComboBox.getSelectedItem());
-            System.out.println("departmentComboBox = " + departmentComboBox.getSelectedItem());
-            jdbc.connectJDBC();
-            try {
-                jdbc.updateEmployeeDate(model, updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox);
-            } catch (SQLException sqlException){
-                System.out.println("오류..");
+            if (hasSsnAttribute()) {
+                jdbc.connectJDBC();
+                try {
+                    jdbc.updateEmployeeDate(ssnList, updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox);
+                    JOptionPane.showMessageDialog(this, "직원 정보 수정 성공");
+                } catch (SQLException sqlException) {
+                    JOptionPane.showMessageDialog(this, "직원 정보 수정 실패");
+                } finally {
+                    jdbc.disconnectJDBC();
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "삭제를 위해선 Ssn을 반드시 조회해야 합니다!", "경고", JOptionPane.WARNING_MESSAGE);
             }
-            jdbc.disconnectJDBC();
-
         } else if (e.getSource().equals(deleteBtn)) {
             if (hasSsnAttribute()) {
-
                 jdbc.connectJDBC();
                 try {
                     jdbc.deleteEmployee(ssnList);
@@ -422,13 +422,7 @@ public class MainPanel extends JFrame {
     }
 
     private boolean hasSsnAttribute() {
-        boolean isSelected = false;
-        for (JCheckBox item : items) {
-            if (item.getText().equals("Ssn") && item.isSelected()) {
-                isSelected = true;
-            }
-        }
-        return isSelected;
+        return !ssnList.isEmpty();
     }
 
     private class modelEventListener implements TableModelListener {
