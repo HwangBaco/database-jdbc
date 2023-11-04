@@ -1,6 +1,5 @@
 package src.JDBC;
 
-import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 import java.util.Set;
@@ -11,17 +10,9 @@ public class JDBCDeleteEmployeeData extends Component {
 
     public void deleteEmployee(Set<String> ssnList, Connection conn) throws SQLException{
         conn.setAutoCommit(false);
-        PreparedStatement pstmt;
-        StringBuilder sb = new StringBuilder();
-        String sql = sb.append(baseDeleteClause).append("ssn = ?;").toString();
-        pstmt = conn.prepareStatement(sql);
-
+        PreparedStatement pstmt = getQueryForm(conn);
         try {
-            for (String ssn : ssnList) {
-                pstmt.setString(1, ssn);
-                pstmt.addBatch();
-                pstmt.clearParameters();
-            }
+            setQueryForm(ssnList, pstmt);
             pstmt.executeBatch();
             conn.commit();
         } catch(Exception e) {
@@ -29,6 +20,22 @@ public class JDBCDeleteEmployeeData extends Component {
             e.printStackTrace();
         } finally {
             pstmt.close();
+        }
+    }
+
+    private PreparedStatement getQueryForm(Connection conn) throws SQLException {
+        PreparedStatement pstmt;
+        StringBuilder sb = new StringBuilder();
+        String sql = sb.append(baseDeleteClause).append("ssn = ?;").toString();
+        pstmt = conn.prepareStatement(sql);
+        return pstmt;
+    }
+
+    private static void setQueryForm(Set<String> ssnList, PreparedStatement pstmt) throws SQLException {
+        for (String ssn : ssnList) {
+            pstmt.setString(1, ssn);
+            pstmt.addBatch();
+            pstmt.clearParameters();
         }
     }
 }
