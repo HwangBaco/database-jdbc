@@ -154,6 +154,7 @@ public class MainPanel extends JFrame {
                 sex.setVisible(false);
                 department.setVisible(true);
             } else {
+                text.setText("");
                 text.setVisible(true);
                 sex.setVisible(false);
                 department.setVisible(false);
@@ -256,6 +257,7 @@ public class MainPanel extends JFrame {
                 sexComboBox.setVisible(false);
                 departmentComboBox.setVisible(true);
             } else {
+                updateTextBox.setText("");
                 updateTextBox.setVisible(true);
                 sexComboBox.setVisible(false);
                 departmentComboBox.setVisible(false);

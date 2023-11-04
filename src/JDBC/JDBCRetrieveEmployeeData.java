@@ -26,7 +26,7 @@ public class JDBCRetrieveEmployeeData {
         attributeMap.put("Supervisor", "CONCAT(s.Fname, ' ', s.Minit, ' ', s.Lname) AS Supervisor");
         attributeMap.put("Department", "Dname");
         // join condition이 필요한 경우
-        attributeMap.put("Super_ssn", "Join Employee as s on e.super_ssn=s.ssn ");
+        attributeMap.put("Super_ssn", "left outer Join Employee as s on e.super_ssn=s.ssn ");
         attributeMap.put("Dname", "Join Department on e.Dno = Dnumber");
         // 한글 이름의 attribute들을 실제 attribute 이름으로 매핑
         for(int i = 0; i < attributeNames.length; i++){
