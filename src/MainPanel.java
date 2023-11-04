@@ -369,11 +369,11 @@ public class MainPanel extends JFrame {
             System.out.println("sexComboBox = " + sexComboBox.getSelectedItem());
             System.out.println("departmentComboBox = " + departmentComboBox.getSelectedItem());
             jdbc.connectJDBC();
-//            try {
-//                //jdbc.updateEmployeeDate(updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox);
-//            } catch (SQLException sqlException){
-//                System.out.println("오류..");
-//            }
+            try {
+                jdbc.updateEmployeeDate(model, updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox);
+            } catch (SQLException sqlException){
+                System.out.println("오류..");
+            }
             jdbc.disconnectJDBC();
 
         } else if (e.getSource().equals(deleteBtn)) {
