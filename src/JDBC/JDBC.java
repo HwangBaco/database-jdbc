@@ -2,6 +2,7 @@ package src.JDBC;
 
 import javax.swing.*;
 import java.sql.*;
+import java.util.Set;
 import javax.swing.table.DefaultTableModel;
 
 public class JDBC {
@@ -60,7 +61,11 @@ public class JDBC {
         jdbcInsertEmployeeData.insertEmployeeData(fields, sexCategory, conn);
      }
 
-    public void deleteEmployee(JTextField jTextField, JComboBox<String> jComboBox1, JComboBox<String> jComboBox2, boolean[] booleans, JComboBox<String> jComboBox3) throws SQLException{
-        jdbcDeleteEmployeeData.deleteEmployee(jTextField, jComboBox1, jComboBox2, booleans, jComboBox3, conn);
+    public void deleteEmployee(Set<String> ssnList) throws SQLException{
+        try {
+            jdbcDeleteEmployeeData.deleteEmployee(ssnList, conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
