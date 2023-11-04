@@ -15,16 +15,23 @@ public class JDBCRetrieveEmployeeData {
     private final String baseSelectClause = "SELECT ";
     private final String baseFromClause = " FROM Employee ";
     private final String baseWhereCluase = " WHERE ";
+    private final String[] koreanAttributeNames = {"전체", "이름",  "생년월일", "주소", "성별", "연봉", "상사", "부서"};
+    private final String[] attributeNames = {"", "whereName", "Bdate", "Address", "Sex", "Salary", "Super_ssn", "Dname"};
     private final HashMap<String,String> attributeMap = new HashMap<>();
 
     // JFrame에서의 attribute 이름과 DB에서의 attribute를 일치하기 위해 매핑 정보 추가
     // (두 환경의 attribute 이름이 다른 경우에 대해서만 추가하였음)
     public JDBCRetrieveEmployeeData(){
+        attributeMap.put("Name", "CONCAT(Fname, ' ', Minit, ' ', Lname) AS Name");
         attributeMap.put("Supervisor", "Super_ssn");
         attributeMap.put("Department", "Dname");
         // join condition이 필요한 경우
         attributeMap.put("Dname", "Join Department on Dno = Dnumber");
-        attributeMap.put("total", "");
+        // 한글 이름의 attribute들을 실제 attribute 이름으로 매핑
+        for(int i = 0; i < attributeNames.length; i++){
+            attributeMap.put(koreanAttributeNames[i], attributeNames[i]);
+        }
+        attributeMap.put("whereName", "CONCAT(Fname, ' ', Minit, ' ', Lname)");
     }
 
     // attribute가 Dname, 혹은 Sex인 경우 해당 변수에 맞는 값에서 가져오고 아니라면 text에 있는 내용을 가져옴
@@ -35,8 +42,11 @@ public class JDBCRetrieveEmployeeData {
     }
 
     // attributeMap에 value가 존재한다면 해당 value 반환, 아니라면 매개변수 자체가 attribute 이름이 되므로 반환
+    // 또 map에 존재하는 value가 attributeMap에 또 존재한다면 해당 값을 반환(ex : Name, Supervisor, Department..)
     private String parseAttribute(String attribute){
-        if(attributeMap.get(attribute) != null){
+        String tmpAttribute = attributeMap.get(attribute);
+        if(tmpAttribute != null){
+            if(tmpAttribute.equals("whereName")) return attributeMap.get("whereName");
             return attributeMap.get(attribute);
         } else{
             return attribute;
@@ -61,8 +71,8 @@ public class JDBCRetrieveEmployeeData {
                 // 매핑되어 있지 않다면 JCheckBox의 text 그대로 추가
                 if(tmpAttribute != null){
                     // 매핑된 정보가 dname인 경우 department table과의 join이 필요하므로 추가
-                    if(tmpAttribute.equals("Dname")){
-                        fromClause += attributeMap.get(tmpAttribute);
+                    if(tmpAttribute.equals(attributeMap.get("Department"))){
+                        fromClause += attributeMap.get("Dname");
                     }
                     attributes.add(tmpAttribute);
                 } else attributes.add(j.getText());
@@ -76,19 +86,19 @@ public class JDBCRetrieveEmployeeData {
             if(attribute.equals("Salary")) whereClause = baseWhereCluase + attribute + " >= " + "\"" + condition + "\"";
             else whereClause = baseWhereCluase + attribute + " = " + "\"" + condition + "\"";
         }
-        System.out.println("Generated Query : " + selectClause + fromClause + whereClause);
+        //System.out.println("Generated Query : " + selectClause + fromClause + whereClause);
         return selectClause + fromClause + whereClause;
     }
 
     // sql 쿼리를 만들어 실행하는 함수
     public DefaultTableModel printReport(DefaultTableModel model, JCheckBox[] checkBox,
-                                         JComboBox<String> category, JTextField text, JComboBox<String> sex, JComboBox<String> department, Connection conn) throws SQLException {
+                                         JComboBox<String> category, JTextField text, JComboBox<String> sex,JComboBox<String> department, Connection conn) throws SQLException {
         model.setColumnCount(0);
         model.setNumRows(0);
         //String[] record = new String[100];
         Vector<String> header = new Vector<>();
 
-        // 조건을 parsing하고 sql에 생성 함수의 매개변수로 넘긴다.
+        // 조건들을 parsing하고 sql에 생성 함수의 매개변수로 넘긴다.
         Statement stmt = conn.createStatement();
         String attribute = parseAttribute(Objects.requireNonNull(category.getSelectedItem()).toString());
         String condition = parseCondition(attribute, text, sex, department);
@@ -99,31 +109,26 @@ public class JDBCRetrieveEmployeeData {
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnCount = rsmd.getColumnCount();
             model.setColumnCount(columnCount);
-            System.out.printf("%d%n", model.getColumnCount());
 
             // attribute 이름을 전부 가져오는 구문
             header.add("선택");
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = rsmd.getColumnName(i); // 열의 이름 가져오기
-                System.out.printf("%s ", columnName);
                 header.add(columnName);
             }
             model.setColumnIdentifiers(header);
-            System.out.println();
 
-            // sql의 결과를 모두 출력하는 구문
+            // sql의 결과를 모두 받아 model을 만드는 구문
             while (rs.next()) {
                 Vector<Object> record = new Vector<>();
                 record.add(false);
                 for (int i = 1; i <= columnCount; i++) {
                     record.add(rs.getString(i));
-                    System.out.printf("%s ", record.get(i));
                 }
                 model.addRow(record);
-                System.out.println();
             }
         } catch (SQLException e){
-            System.out.println("쿼리문 오류");
+            System.out.println("쿼리문 문법 오류");
         }
         return model;
     }
