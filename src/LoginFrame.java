@@ -35,17 +35,17 @@ public class LoginFrame extends JFrame implements ActionListener {
 
 
         JPanel idPanel = new JPanel();
-        idPanel.add(new JLabel("DB 아이디 : "));
+        idPanel.add(new JLabel("Username : "));
         idPanel.add(id);
         idPanel.setLayout(new BoxLayout(idPanel, BoxLayout.X_AXIS));
 
         JPanel pwPanel = new JPanel();
-        pwPanel.add(new JLabel("DB 패스워드 : "));
+        pwPanel.add(new JLabel("Password : "));
         pwPanel.add(pw);
         pwPanel.setLayout(new BoxLayout(pwPanel, BoxLayout.X_AXIS));
 
         JPanel dbnamePanel = new JPanel();
-        dbnamePanel.add(new JLabel("DB 이름 : "));
+        dbnamePanel.add(new JLabel("Database name : "));
         dbnamePanel.add(dbName);
         dbnamePanel.setLayout(new BoxLayout(dbnamePanel, BoxLayout.X_AXIS));
         JPanel btnPanel = new JPanel();
