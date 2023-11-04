@@ -70,7 +70,6 @@ public class JDBCPrintReport {
             tableColumns.add("선택");
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = rsmd.getColumnName(i); // 열의 이름 가져오기
-                System.out.printf("%s ", columnName);
                 tableColumns.add(columnName);
             }
             model = new DefaultTableModel(tableColumns,0) {
