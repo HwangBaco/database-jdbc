@@ -83,6 +83,7 @@ public class LoginFrame extends JFrame implements ActionListener {
             JDBC jdbc = new JDBC(ID, PW, DB_NAME);
             Connection conn = jdbc.connectJDBC();
             conn.beginRequest();
+            jdbc.disconnectJDBC();
             MainFrame mainFrame = new MainFrame();
             dispose();
         } catch (Exception exception) {
