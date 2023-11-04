@@ -7,6 +7,7 @@ import javax.swing.border.Border;
 
 public class MainFrame extends JFrame {
     public MainFrame(){
+
         setTitle("직원 검색 시스템");
         setVisible(true); // default가 false이므로 보여지기 위해서 선언
         setLocation(100, 50);
@@ -14,7 +15,7 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // 메인 panel 생성
-        MainPanel mainPanel = new MainPanel(this);
+        MainPanel mainPanel = new MainPanel();
         JPanel top = mainPanel.getSearchPanel();
         JPanel middle = mainPanel.getTablePanel();
         JPanel bottom = mainPanel.getContextPanel();
