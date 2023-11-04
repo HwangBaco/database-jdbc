@@ -83,13 +83,8 @@ public class JDBCRetrieveEmployeeData {
 
         // parameter 값을 토대로 where절 완성
         if(!attribute.isBlank() && !condition.isBlank()){
-            if(attribute.equals("Salary")) {
-                whereClause = (baseWhereCluase + attribute + " >= " + condition);
-            } /*else if {
-                whereClause = (baseWhereCluase + attribute)
-            }*/ else {
-                whereClause = (baseWhereCluase + attribute + " = " + "\"" + condition + "\"");
-            }
+            if(attribute.equals("Salary")) whereClause = baseWhereCluase + attribute + " >= " + "\"" + condition + "\"";
+            else whereClause = baseWhereCluase + attribute + " = " + "\"" + condition + "\"";
         }
         //System.out.println("Generated Query : " + selectClause + fromClause + whereClause);
         return selectClause + fromClause + whereClause;
@@ -100,7 +95,8 @@ public class JDBCRetrieveEmployeeData {
                                          JComboBox<String> category, JTextField text, JComboBox<String> sex,JComboBox<String> department, Connection conn) throws SQLException {
         model.setColumnCount(0);
         model.setNumRows(0);
-        Vector<String> headerRow = new Vector<>();
+        //String[] record = new String[100];
+        Vector<String> header = new Vector<>();
 
         // 조건들을 parsing하고 sql에 생성 함수의 매개변수로 넘긴다.
         Statement stmt = conn.createStatement();
@@ -115,12 +111,12 @@ public class JDBCRetrieveEmployeeData {
             model.setColumnCount(columnCount);
 
             // attribute 이름을 전부 가져오는 구문
-            headerRow.add("선택");
+            header.add("선택");
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = rsmd.getColumnName(i); // 열의 이름 가져오기
-                headerRow.add(columnName);
+                header.add(columnName);
             }
-            model.setColumnIdentifiers(headerRow);
+            model.setColumnIdentifiers(header);
 
             // sql의 결과를 모두 받아 model을 만드는 구문
             while (rs.next()) {

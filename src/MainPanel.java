@@ -28,7 +28,7 @@ public class MainPanel extends JFrame {
 
     // search filter
     private static final int CHECKBOX_NUM = 8;
-    final String[] searchRanges = {"All", "Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
+    final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
     final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
     final String[] sexStrings = {"M", "F"};
     final String[] departmentStrings = {"Research", "Administration", "Headquarters"};
@@ -199,7 +199,7 @@ public class MainPanel extends JFrame {
         JPanel selectedEmployeePanel = new JPanel();
         JLabel selectedEmpLabel = new JLabel("선택한 직원 :  ");
 
-        Font font = new Font("SansSerif", Font.BOLD, 20);
+        Font font = new Font("SansSerif", Font.BOLD, 11);
         selectedEmpLabel.setFont(font);
         selectedEmpStrings.setFont(font);
 
