@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class JDBC {
 
-    private static Connection conn;
+    private Connection conn;
     private final JDBCConnect jdbcConnect;
     private final JDBCRetrieveEmployeeData jdbcPrintReport;
     private final JDBCInsertEmployeeData jdbcInsertEmployeeData;
@@ -26,6 +26,7 @@ public class JDBC {
         try {
             conn = jdbcConnect.getConnection();
         } catch (SQLException e){
+            System.out.println("데이터베이스와 연결되지 않았습니다! 변수를 확인해주세요!");
             e.printStackTrace();
         }
         return conn;
@@ -52,8 +53,9 @@ public class JDBC {
         return model;
     }
 
-    public void updateEmployeeDate(){
-        //jdbcUpdateEmployeeData.updateEmployeeDate();
+    public void updateEmployeeDate(Set<String> ssnList, JComboBox<String> updateItemComboBox,
+                                   JTextField updateTextBox, JComboBox<String> sexComboBox, JComboBox<String> departmentComboBox) throws SQLException{
+        jdbcUpdateEmployeeData.updateEmployeeDate(ssnList, updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox, conn);
     }
 
     public void insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory) throws SQLException{

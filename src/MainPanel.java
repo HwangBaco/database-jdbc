@@ -5,6 +5,7 @@ import src.JDBC.JDBC;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -42,7 +43,7 @@ public class MainPanel extends JPanel {
     JComboBox<String> department;
     JComboBox<String> category;
 
-    Set<String> ssnList = new HashSet();
+    Set<String> ssnList = new HashSet<>();
 
 
     // table
@@ -350,26 +351,29 @@ public class MainPanel extends JPanel {
             }
 
         } else if (e.getSource().equals(updateBtn)) {
-            System.out.println("updateItemComboBox = " + updateItemComboBox.getSelectedItem());
-            System.out.println("updateTextBox.getText() = " + updateTextBox.getText());
-            System.out.println("sexComboBox = " + sexComboBox.getSelectedItem());
-            System.out.println("departmentComboBox = " + departmentComboBox.getSelectedItem());
-            jdbc.connectJDBC();
-//            try {
-//                //jdbc.updateEmployeeDate(updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox);
-//            } catch (SQLException sqlException){
-//                System.out.println("오류..");
-//            }
-            jdbc.disconnectJDBC();
-
+            if (hasSsnAttribute()) {
+                jdbc.connectJDBC();
+                try {
+                    jdbc.updateEmployeeDate(ssnList, updateItemComboBox, updateTextBox, sexComboBox, departmentComboBox);
+                    JOptionPane.showMessageDialog(this, "직원 정보 수정 성공");
+                    ssnList = new HashSet<>(); // reset ssnList
+                    getTableView(); // refresh table
+                } catch(SQLIntegrityConstraintViolationException sqlIntegrityException){
+                    JOptionPane.showMessageDialog(this, "개체 무결성 위반 : 동일한 값을 가진 키가 이미 존재합니다!!");
+                } catch (SQLException sqlException) {
+                    JOptionPane.showMessageDialog(this, "직원 정보 수정 실패 : 유효하지 않은 값입니다.");
+                } finally {
+                    jdbc.disconnectJDBC();
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "수정하기 위해서 하나 이상의 Ssn을 반드시 선택해야 합니다!", "경고", JOptionPane.WARNING_MESSAGE);
+            }
         } else if (e.getSource().equals(deleteBtn)) {
             if (hasSsnAttribute()) {
-
                 jdbc.connectJDBC();
                 try {
                     jdbc.deleteEmployee(ssnList);
                     JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
-
                     ssnList = new HashSet<>(); // reset ssnList
                     getTableView(); // refresh table
                 } catch (SQLException sqlException) {
