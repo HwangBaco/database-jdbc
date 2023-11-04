@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
         MainPanel mainPanel = new MainPanel();
         JPanel top = mainPanel.getTopPanel();
         JPanel middle = mainPanel.getTablePanel();
-        JPanel bottom = mainPanel.getBottomPanel();
+        JPanel bottom = mainPanel.getVerticalPanel();
 
         // 컨텐츠 container에 top/bottom panel 삽입
         Container container = frame.getContentPane();

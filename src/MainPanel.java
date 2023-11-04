@@ -35,7 +35,7 @@ public class MainPanel extends JFrame {
     }; // edited
     JCheckBox[] items; // edited
     JPanel searchRangePanel, searchItemPanel, selectedEmpPanel,headcountPanel, updatePanel, deletePanel, insertPanel;
-    JPanel topPanel, bottomPanel, leftBottomPanel;
+    JPanel topPanel, verticalPanel, bottomPanel;
 
     private JLabel selectedEmpStrings = new JLabel();
     JTextField text;
@@ -72,14 +72,20 @@ public class MainPanel extends JFrame {
         commandPanels.add(updatePanel);
         commandPanels.add(deletePanel);
         commandPanels.add(insertPanel);
-        leftBottomPanel = setLeftBottomPanel(commandPanels);
+        bottomPanel = setBottomPanel(commandPanels);
 
+        JPanel midPanel = new JPanel();
+        midPanel.add(selectedEmpPanel);
+        midPanel.setLayout(new BoxLayout(midPanel, BoxLayout.X_AXIS));
 
-        ArrayList<JPanel> bottomPanels = new ArrayList<>();
-        bottomPanels.add(leftBottomPanel);
-        bottomPanels.add(selectedEmpPanel);
+        ArrayList<JPanel> lowPanels = new ArrayList<>();
+        lowPanels.add(midPanel);
+        lowPanels.add(bottomPanel);
 
-        bottomPanel = setBottom(bottomPanels);
+        verticalPanel = setVerticalPanel(lowPanels);
+
+        add(topPanel, BorderLayout.NORTH);
+        add(verticalPanel, BorderLayout.SOUTH);
 
         jdbc.connectJDBC();
     }
@@ -87,8 +93,8 @@ public class MainPanel extends JFrame {
     public JPanel getTopPanel(){
         return this.topPanel;
     }
-    public JPanel getBottomPanel(){
-        return this.leftBottomPanel;
+    public JPanel getVerticalPanel(){
+        return this.bottomPanel;
     }
 
 
@@ -275,7 +281,7 @@ public class MainPanel extends JFrame {
         return top;
     }
 
-    public JPanel setLeftBottomPanel(ArrayList<JPanel> panels){
+    public JPanel setBottomPanel(ArrayList<JPanel> panels){
         JPanel bottomPanel = new JPanel();
         for (JPanel panel : panels) {
             bottomPanel.add(panel);
@@ -284,7 +290,7 @@ public class MainPanel extends JFrame {
         return bottomPanel;
     }
 
-    public JPanel setBottom(ArrayList<JPanel> panels){
+    public JPanel setVerticalPanel(ArrayList<JPanel> panels){
         JPanel bottomPanel = new JPanel();
         for (JPanel panel : panels) {
             bottomPanel.add(panel);
