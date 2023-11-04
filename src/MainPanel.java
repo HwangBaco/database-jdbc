@@ -12,11 +12,13 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import static src.LoginFrame.*;
 import static src.Main.*;
 
-public class MainPanel extends JFrame {
-    MainFrame frame;
+public class MainPanel extends JPanel {
+
     SubFrame subFrame;
+
 
     // 컴포넌트 판넬
     JPanel searchRangePanel, searchItemPanel, selectedEmpPanel, headcountPanel, updatePanel, deletePanel, insertPanel;
@@ -28,10 +30,10 @@ public class MainPanel extends JFrame {
 
     // search filter
     private static final int CHECKBOX_NUM = 8;
-    final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
-    final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
-    final String[] sexStrings = {"M", "F"};
-    final String[] departmentStrings = {"Research", "Administration", "Headquarters"};
+    private final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
+    private final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
+    private final String[] sexStrings = {"M", "F"};
+    private final String[] departmentStrings = {"Research", "Administration", "Headquarters"};
 
     JCheckBox[] items;
 
@@ -85,8 +87,7 @@ public class MainPanel extends JFrame {
 
     JDBC jdbc = new JDBC(ID, PW, DB_NAME);
 
-    MainPanel(MainFrame frame) {
-        this.frame = frame;
+    MainPanel() {
         searchBtn = new JButton("검색");
         updateBtn = new JButton("update");
         deleteBtn = new JButton("선택한 데이터 삭제");
@@ -154,6 +155,7 @@ public class MainPanel extends JFrame {
                 sex.setVisible(false);
                 department.setVisible(true);
             } else {
+                text.setText("");
                 text.setVisible(true);
                 sex.setVisible(false);
                 department.setVisible(false);
@@ -189,8 +191,8 @@ public class MainPanel extends JFrame {
         table.getModel().addTableModelListener(new modelEventListener());
         scrollPane.setPreferredSize(new Dimension(1000, 300));
         tablePanel.add(scrollPane);
-        frame.add(tablePanel, BorderLayout.CENTER);
-        frame.revalidate();
+        super.add(tablePanel, BorderLayout.CENTER);
+        super.revalidate();
 
         return tablePanel;
     }
@@ -256,6 +258,7 @@ public class MainPanel extends JFrame {
                 sexComboBox.setVisible(false);
                 departmentComboBox.setVisible(true);
             } else {
+                updateTextBox.setText("");
                 updateTextBox.setVisible(true);
                 sexComboBox.setVisible(false);
                 departmentComboBox.setVisible(false);
@@ -332,8 +335,8 @@ public class MainPanel extends JFrame {
     public void click(ActionEvent e) {
 
         if (actionAfterCommand) {
-            frame.remove(tablePanel);
-            frame.revalidate();
+            super.remove(tablePanel);
+            super.revalidate();
         }
 
         if (e.getSource().equals(searchBtn)) {

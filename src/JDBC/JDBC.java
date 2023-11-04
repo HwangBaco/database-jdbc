@@ -22,12 +22,13 @@ public class JDBC {
         jdbcUpdateEmployeeData = new JDBCUpdateEmployeeData();
     }
 
-    public void connectJDBC() {
+    public Connection connectJDBC() {
         try {
             conn = jdbcConnect.getConnection();
         } catch (SQLException e){
             e.printStackTrace();
         }
+        return conn;
     }
 
     public void disconnectJDBC(){
