@@ -1,15 +1,11 @@
 package src;
 
 import java.awt.Container;
-import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class MainFrame extends JFrame {
     public MainFrame(){
-        // 메인프레임 window size configuration
-        Dimension dim = new Dimension(1000, 500);
-
         // 메인 프레임 기본 configuration
         JFrame frame = new JFrame("직원 검색 시스템");
         frame.setVisible(true); // default가 false이므로 보여지기 위해서 선언
@@ -17,8 +13,9 @@ public class MainFrame extends JFrame {
         // 프레임 첫 등장 좌표
         frame.setLocation(100, 50);
 
+
         // 메인프레임 window size apply
-        frame.setPreferredSize(dim);
+        setSize(1000, 500);
 
         // 종료
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -26,7 +23,7 @@ public class MainFrame extends JFrame {
         // 메인 panel 생성
         MainPanel mainPanel = new MainPanel();
         JPanel top = mainPanel.getTopPanel();
-        JPanel middle = mainPanel.setTablePanel();
+        JPanel middle = mainPanel.getTablePanel();
         JPanel bottom = mainPanel.getBottomPanel();
 
         // 컨텐츠 container에 top/bottom panel 삽입
