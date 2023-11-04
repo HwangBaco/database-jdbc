@@ -33,7 +33,7 @@ public class JDBC {
         try{
             if(conn != null)
                 conn.close();
-        } catch(SQLException e){
+        } catch(SQLException ignored){
 
         }
     }
@@ -49,15 +49,16 @@ public class JDBC {
         }
         return model;
     }
+
     public void updateEmployeeDate(){
-        jdbcUpdateEmployeeData.updateEmployeeDate();
+        //jdbcUpdateEmployeeData.updateEmployeeDate();
     }
 
-    public boolean insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory){
-        return jdbcInsertEmployeeData.insertEmployeeData(fields, sexCategory, conn);
-    }
+    public void insertEmployeeData(JTextField[] fields, JComboBox<String> sexCategory) throws SQLException{
+        jdbcInsertEmployeeData.insertEmployeeData(fields, sexCategory, conn);
+     }
 
-    public boolean deleteEmployee(JTextField jTextField, JComboBox jComboBox1, JComboBox jComboBox2, boolean[] booleans, JComboBox jComboBox3) {
-        return jdbcDeleteEmployeeData.deleteEmployee(jTextField, jComboBox1, jComboBox2, booleans, jComboBox3, conn);
+    public void deleteEmployee(JTextField jTextField, JComboBox<String> jComboBox1, JComboBox<String> jComboBox2, boolean[] booleans, JComboBox<String> jComboBox3) throws SQLException{
+        jdbcDeleteEmployeeData.deleteEmployee(jTextField, jComboBox1, jComboBox2, booleans, jComboBox3, conn);
     }
 }
