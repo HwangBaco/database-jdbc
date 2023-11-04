@@ -6,7 +6,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class JDBC {
 
-    private Connection conn;
+    public static Connection conn;
     private final JDBCConnect jdbcConnect;
     private final JDBCRetrieveEmployeeData jdbcPrintReport;
     private final JDBCInsertEmployeeData jdbcInsertEmployeeData;

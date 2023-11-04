@@ -5,7 +5,8 @@ import src.JDBC.JDBC;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -15,17 +16,46 @@ import javax.swing.table.TableModel;
 import static src.Main.*;
 
 public class MainPanel extends JFrame {
+    MainFrame frame;
+
+    // 컴포넌트 판넬
+    JPanel searchRangePanel, searchItemPanel, selectedEmpPanel, headcountPanel, updatePanel, deletePanel, insertPanel;
+    // 레이아웃 판넬
+    JPanel searchPanel, contextPanel, midPanel, bottomPanel;
+    // 액션 버튼
+    JButton searchBtn, updateBtn, deleteBtn, insertBtn;
+
+
+    // search filter
     private static final int CHECKBOX_NUM = 8;
     final String[] searchRanges = {"전체", "이름", "Ssn", "생년월일", "주소", "성별", "연봉", "상사", "부서"};
     final String[] searchItems = {"Name", "Ssn", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Department"};
-    final String[] sexStrings = {"", "M", "F"};
+    final String[] sexStrings = {"M", "F"};
+    final String[] departmentStrings = {"Research", "Administration", "Headquarters"};
 
-    JButton searchBtn, updateBtn, deleteBtn, insertBtn;
-    String[] departmentStrings = {"", "Research", "Administration", "Headquarters"};
-    DefaultTableModel model = new DefaultTableModel(0, 0); // edited
+    JCheckBox[] items;
 
-    private int NAME_COLUMN = 0;
-    JTable table = new JTable(this.model){
+    JTextField text;
+    JComboBox<String> sex;
+    JComboBox<String> department;
+    JComboBox<String> category;
+
+
+    // table
+    JPanel tablePanel;
+//    JPanel tablePanel = new JPanel();
+    JScrollPane scrollPane;
+    DefaultTableModel model = new DefaultTableModel(0, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            if (column > 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    };
+    JTable table = new JTable(this.model) {
         @Override
         public Class getColumnClass(int column) {
             if (column == 0) {
@@ -33,16 +63,19 @@ public class MainPanel extends JFrame {
             } else
                 return String.class;
         }
-    }; // edited
-    JCheckBox[] items; // edited
-    JPanel searchRangePanel, searchItemPanel, selectedEmpPanel,headcountPanel, updatePanel, deletePanel, insertPanel;
-    JPanel topPanel, verticalPanel, bottomPanel;
+    };
 
-    private JLabel selectedEmpStrings = new JLabel();
-    JTextField text;
-    JComboBox<String> sex;
-    JComboBox<String> department;
-    JComboBox<String> categoryCombo;
+    public static Map<String, Integer> columnIdxMap = new HashMap<>();
+
+    boolean actionAfterCommand = false;
+
+
+    // 업데이트 해줘야 하는 필드는 공통으로 관리
+    public JLabel headCountNumber = new JLabel();
+    public JLabel selectedEmpStrings = new JLabel();
+
+
+
 
     // update시에 변수로 넘겨주기 위해 전역변수로 뺐습니다.
     JComboBox<String> updateItemComboBox;
@@ -52,7 +85,8 @@ public class MainPanel extends JFrame {
 
     JDBC jdbc = new JDBC(ID, PW, DB_NAME);
 
-    MainPanel() {
+    MainPanel(MainFrame frame) {
+        this.frame = frame;
         searchBtn = new JButton("검색");
         updateBtn = new JButton("update");
         deleteBtn = new JButton("선택한 데이터 삭제");
@@ -68,94 +102,68 @@ public class MainPanel extends JFrame {
         deletePanel = getDeleteItemPanel();
         insertPanel = getInsertItemPanel();
 
-        // 구역별 sub Panels 위치
-        ArrayList<JPanel> searchPanels = new ArrayList<>();
-        searchPanels.add(searchRangePanel);
-        searchPanels.add(searchItemPanel);
-        topPanel = setTopPanel(searchPanels);
-
-        ArrayList<JPanel> commandPanels = new ArrayList<>();
-        commandPanels.add(headcountPanel);
-        commandPanels.add(updatePanel);
-        commandPanels.add(deletePanel);
-        commandPanels.add(insertPanel);
-        bottomPanel = setBottomPanel(commandPanels);
-
-        JPanel midPanel = new JPanel();
-        midPanel.add(selectedEmpPanel);
-        midPanel.setLayout(new BoxLayout(midPanel, BoxLayout.X_AXIS));
-
-        ArrayList<JPanel> lowPanels = new ArrayList<>();
-        lowPanels.add(midPanel);
-        lowPanels.add(bottomPanel);
-
-        verticalPanel = setVerticalPanel(lowPanels);
-
-        add(topPanel, BorderLayout.NORTH);
-        add(verticalPanel, BorderLayout.SOUTH);
-
-        jdbc.connectJDBC();
+        // 구역별 panels 위치
+        searchPanel = setSearchPanel(searchRangePanel, searchItemPanel);
+        midPanel = setMidPanel(selectedEmpPanel);
+        bottomPanel = setBottomPanel(headcountPanel, updatePanel, deletePanel, insertPanel);
+        contextPanel = setContextPanel(midPanel, bottomPanel);
     }
 
-    public JPanel getTopPanel(){
-        return this.topPanel;
+    public JPanel getSearchPanel() {
+        return this.searchPanel;
     }
-    public JPanel getVerticalPanel(){
-        return this.bottomPanel;
+
+    public JPanel getContextPanel() {
+        return this.contextPanel;
     }
 
 
     // 컴색 범위 텍스트 + 드랍박스 injection
-    public JPanel getSearchRangePanel(){
+    public JPanel getSearchRangePanel() {
         JPanel searchRangePanel = new JPanel();
         JComboBox<String> searchRangeComboBox = new JComboBox<>(searchRanges);
         searchRangePanel.add(new JLabel("검색범위  "));
         searchRangePanel.add(searchRangeComboBox);
         searchRangePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JTextField searchTextBox = new JTextField(20);
-        JComboBox<String> sexComboBox = new JComboBox<>(this.sexStrings);
-        JComboBox<String> departmentComboBox = new JComboBox<>(departmentStrings);
+        text = new JTextField(20);
+        sex = new JComboBox<>(this.sexStrings);
+        department = new JComboBox<>(departmentStrings);
+        category = searchRangeComboBox;
 
-        //이부분 지우지 말아주세요! 밑에 변수 네개
-        text = searchTextBox;
-        sex = sexComboBox;
-        department = departmentComboBox;
-        categoryCombo = searchRangeComboBox;
+        searchRangePanel.add(text);
+        searchRangePanel.add(sex);
+        searchRangePanel.add(department);
 
-        searchRangePanel.add(searchTextBox);
-        searchRangePanel.add(sexComboBox);
-        searchRangePanel.add(departmentComboBox);
-
-        searchTextBox.setVisible(false);
-        sexComboBox.setVisible(false);
-        departmentComboBox.setVisible(false);
+        text.setVisible(false);
+        sex.setVisible(false);
+        department.setVisible(false);
 
         searchRangeComboBox.addActionListener(e -> {
             int selectedIndex = searchRangeComboBox.getSelectedIndex();
             if (selectedIndex == 0) { // 전체
-                searchTextBox.setVisible(false);
-                sexComboBox.setVisible(false);
-                departmentComboBox.setVisible(false);
+                text.setVisible(false);
+                sex.setVisible(false);
+                department.setVisible(false);
             } else if (selectedIndex == 5) { //Sex
-                searchTextBox.setVisible(false);
-                sexComboBox.setVisible(true);
-                departmentComboBox.setVisible(false);
-            } else if(selectedIndex == 8){ //Department
-                searchTextBox.setVisible(false);
-                sexComboBox.setVisible(false);
-                departmentComboBox.setVisible(true);
-            } else{
-                searchTextBox.setVisible(true);
-                sexComboBox.setVisible(false);
-                departmentComboBox.setVisible(false);
+                text.setVisible(false);
+                sex.setVisible(true);
+                department.setVisible(false);
+            } else if (selectedIndex == 8) { //Department
+                text.setVisible(false);
+                sex.setVisible(false);
+                department.setVisible(true);
+            } else {
+                text.setVisible(true);
+                sex.setVisible(false);
+                department.setVisible(false);
             }
         });
 
         return searchRangePanel;
     }
 
-    public JPanel getSearchItemPanel(){
+    public JPanel getSearchItemPanel() {
         JPanel searchItemPanel = new JPanel();
         JLabel searchItemLabel = new JLabel("검색항목  ");
 
@@ -164,6 +172,7 @@ public class MainPanel extends JFrame {
         for (int i = 0; i < CHECKBOX_NUM; i++) {
             items[i] = new JCheckBox(searchItems[i], true);
             searchItemPanel.add(items[i]);
+            columnIdxMap.put(searchItems[i], -1);
         }
 
 
@@ -174,47 +183,47 @@ public class MainPanel extends JFrame {
         return searchItemPanel;
     }
 
-    public JPanel getTablePanel(){
-        JPanel tablePanel = new JPanel();
-        JScrollPane scrollPane = new JScrollPane(this.table);
-        table.getModel().addTableModelListener(new CheckboxModelListener(selectedEmpPanel));
+    public JPanel getTablePanel() {
+        tablePanel = new JPanel();
+        scrollPane = new JScrollPane(this.table);
+        table.getModel().addTableModelListener(new CheckboxModelListener());
         scrollPane.setPreferredSize(new Dimension(1000, 300));
         tablePanel.add(scrollPane);
+        frame.add(tablePanel, BorderLayout.CENTER);
+        frame.revalidate();
+
         return tablePanel;
     }
-    public JPanel getSelectedEmpPanel(){
-        JPanel selectedEmployeePanel = new JPanel();
 
+    public JPanel getSelectedEmpPanel() {
+        JPanel selectedEmployeePanel = new JPanel();
         JLabel selectedEmpLabel = new JLabel("선택한 직원 :  ");
 
-        // apply font
-        Font font = new Font("SansSerif", Font.BOLD, 20);
+        Font font = new Font("SansSerif", Font.BOLD, 11);
         selectedEmpLabel.setFont(font);
         selectedEmpStrings.setFont(font);
 
         selectedEmployeePanel.add(selectedEmpLabel);
         selectedEmployeePanel.add(selectedEmpStrings);
-
         selectedEmployeePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         return selectedEmployeePanel;
     }
 
-    public JPanel getHeadCounts(){
+    public JPanel getHeadCounts() {
         JPanel headCountPanel = new JPanel();
 
         JLabel headCountLabel = new JLabel("인원수 :  ");
-        JLabel headCounts = new JLabel();
 
         headCountPanel.add(headCountLabel);
-        headCountPanel.add(headCounts);
+        headCountPanel.add(headCountNumber);
 
         headCountPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         return headCountPanel;
     }
 
-    public JPanel getUpdateItemPanel(){
+    public JPanel getUpdateItemPanel() {
         JPanel updateItemPanel = new JPanel();
         JLabel updateItemLabel = new JLabel("수정 ");
 
@@ -242,13 +251,11 @@ public class MainPanel extends JFrame {
                 updateTextBox.setVisible(false);
                 sexComboBox.setVisible(true);
                 departmentComboBox.setVisible(false);
-            }
-            else if(selectedIndex == 7){ //Department
+            } else if (selectedIndex == 7) { //Department
                 updateTextBox.setVisible(false);
                 sexComboBox.setVisible(false);
                 departmentComboBox.setVisible(true);
-            }
-            else{
+            } else {
                 updateTextBox.setVisible(true);
                 sexComboBox.setVisible(false);
                 departmentComboBox.setVisible(false);
@@ -261,7 +268,7 @@ public class MainPanel extends JFrame {
         return updateItemPanel;
     }
 
-    public JPanel getDeleteItemPanel(){
+    public JPanel getDeleteItemPanel() {
         JPanel deletePanel = new JPanel();
         deletePanel.add(deleteBtn);
         deletePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -269,7 +276,7 @@ public class MainPanel extends JFrame {
         return deletePanel;
     }
 
-    public JPanel getInsertItemPanel(){
+    public JPanel getInsertItemPanel() {
         JPanel insertPanel = new JPanel();
         insertPanel.add(insertBtn);
         insertPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -277,47 +284,85 @@ public class MainPanel extends JFrame {
         return insertPanel;
     }
 
-    public JPanel setTopPanel(ArrayList<JPanel> panels){
+    public JPanel setSearchPanel(JPanel searchRangePanel, JPanel searchItemPanel) {
         JPanel top = new JPanel();
-        for (JPanel panel : panels) {
-            top.add(panel);
-        }
+        top.add(searchRangePanel);
+        top.add(searchItemPanel);
         top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS)); // 패널 세로정렬
         top.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
         return top;
     }
 
-    public JPanel setBottomPanel(ArrayList<JPanel> panels){
+    public JPanel setMidPanel(JPanel selectedEmpPanel) {
+        JPanel midPanel = new JPanel();
+        midPanel.add(selectedEmpPanel);
+        midPanel.setLayout(new BoxLayout(midPanel, BoxLayout.X_AXIS));
+        return midPanel;
+    }
+
+    public JPanel setBottomPanel(JPanel headcountPanel, JPanel updatePanel, JPanel deletePanel, JPanel insertPanel) {
         JPanel bottomPanel = new JPanel();
-        for (JPanel panel : panels) {
-            bottomPanel.add(panel);
-        }
+        bottomPanel.add(headcountPanel);
+        bottomPanel.add(updatePanel);
+        bottomPanel.add(deletePanel);
+        bottomPanel.add(insertPanel);
+
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
         return bottomPanel;
     }
 
-    public JPanel setVerticalPanel(ArrayList<JPanel> panels){
-        JPanel bottomPanel = new JPanel();
-        for (JPanel panel : panels) {
-            bottomPanel.add(panel);
-        }
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
 
-        return bottomPanel;
+    public JPanel setContextPanel(JPanel midPanel, JPanel bottomPanel) {
+        JPanel contextPanel = new JPanel();
+
+        contextPanel.add(midPanel);
+        contextPanel.add(bottomPanel);
+
+        contextPanel.setLayout(new BoxLayout(contextPanel, BoxLayout.Y_AXIS));
+        contextPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+
+        return contextPanel;
     }
 
+
     SubFrame sf;
-    // 버튼 이벤트리스너 관리
+
+    /*
+     * 버튼 이벤트리스너 관리
+     * */
     public void click(ActionEvent e) {
-        if (e.getSource() == searchBtn) {
-            if (!isSelected()) {
+
+        if (actionAfterCommand) {
+            frame.remove(tablePanel);
+            frame.revalidate();
+        }
+
+        if (e.getSource().equals(searchBtn)) {
+            jdbc.connectJDBC();
+
+            if (!hasSelectAttribute()) {
                 JOptionPane.showMessageDialog(null, "하나 이상의 항목를 선택해주세요!", "경고", JOptionPane.WARNING_MESSAGE);
             } else {
-                printSelectedItems();
+                model = jdbc.printReport(model, items, category, text, sex, department); // 모델이 반환됨
+                actionAfterCommand = true;
+                table = new JTable(model) {
+                    @Override
+                    public Class getColumnClass(int column) {
+                        if (column == 0) {
+                            return Boolean.class;
+                        } else
+                            return String.class;
+                    }
+                };
+                selectedEmpStrings.setText(" ");
+                int rowCount = model.getRowCount();
+                headCountNumber.setText(String.valueOf(rowCount));
+                getTablePanel();
+                jdbc.disconnectJDBC();
+
             }
 
-        } else if (e.getSource() == updateBtn) {
+        } else if (e.getSource().equals(updateBtn)) {
             //업데이트 버튼 누르면
             System.out.println("updateItemComboBox = " + updateItemComboBox.getSelectedItem());
             System.out.println("updateTextBox.getText() = " + updateTextBox.getText());
@@ -331,43 +376,39 @@ public class MainPanel extends JFrame {
 //            }
             jdbc.disconnectJDBC();
 
-        } else if (e.getSource() == deleteBtn) {
+        } else if (e.getSource().equals(deleteBtn)) {
             // 삭제 버튼 누르면
+            jdbc.connectJDBC();
+
             boolean[] boolArray = {false, false, false};
             boolArray[0] = text.isVisible();
             boolArray[1] = sex.isVisible();
             boolArray[2] = department.isVisible();
 
-            jdbc.connectJDBC();
             try{
-                jdbc.deleteEmployee(text, sex, department, boolArray, categoryCombo);
+                jdbc.deleteEmployee(text, sex, department, boolArray, category);
                 JOptionPane.showMessageDialog(this, "직원 정보 삭제 성공");
             } catch (SQLException sqlException) {
                 JOptionPane.showMessageDialog(this, "직원 정보 삭제 실패");
             }
             jdbc.disconnectJDBC();
-        } else if (e.getSource() == insertBtn) {
+
+        } else if (e.getSource().equals(insertBtn)) {
+            // 삽입 버튼 누르면
             if (sf != null) {
                 sf.dispose();
             }
             sf = new SubFrame();
+
         }
+
     }
 
-    private void printSelectedItems() {
-        //검색 버튼 누르면 jdbc 연결 후 보고서 출력 후 연결 해제
-        jdbc.connectJDBC();
-        model = jdbc.printReport(model, items, categoryCombo, text, sex, department); // 모델이 반환됨
-        jdbc.disconnectJDBC();
-    }
 
-    private boolean isSelected() {
+    private boolean hasSelectAttribute() {
         boolean isSelected = false;
-        for(JCheckBox item : items){
-            if(item.isSelected()){
-                if (item.equals("Name")) {
-                    NAME_COLUMN = 1;
-                }
+        for (JCheckBox item : items) {
+            if (item.isSelected()) {
                 isSelected = true;
             }
         }
@@ -375,11 +416,6 @@ public class MainPanel extends JFrame {
     }
 
     public class CheckboxModelListener implements TableModelListener {
-        private JPanel selectedEmpPanel;
-
-        public CheckboxModelListener(JPanel selectedEmpPanel) {
-            this.selectedEmpPanel = selectedEmpPanel;
-        }
 
         public void tableChanged(TableModelEvent e) {
             int row = e.getFirstRow();
@@ -388,30 +424,29 @@ public class MainPanel extends JFrame {
                 TableModel model = (TableModel) e.getSource();
                 String columnName = model.getColumnName(1);
                 Boolean checked = (Boolean) model.getValueAt(row, column);
-                if (columnName == "NAME") {
-                    String dShow;
+                if (columnName.equals("Name")) {
+                    StringBuilder empNames = new StringBuilder();
                     if (checked) {
-                        dShow = "";
                         for (int i = 0; i < table.getRowCount(); i++) {
                             if (table.getValueAt(i, 0) == Boolean.TRUE) {
-                                dShow += (String) table.getValueAt(i, NAME_COLUMN) + "    ";
-
+                                empNames.append((String) table.getValueAt(i, 1)).append("    ");
                             }
                         }
-                        selectedEmpStrings.setText(dShow);
+                        selectedEmpStrings.setText(empNames.toString());
                     } else {
-                        dShow = "";
                         for (int i = 0; i < table.getRowCount(); i++) {
                             if (table.getValueAt(i, 0) == Boolean.TRUE) {
-                                dShow += (String) table.getValueAt(i, 1) + "    ";
+                                empNames.append((String) table.getValueAt(i, 1)).append("    ");
 
                             }
                         }
-                        selectedEmpStrings.setText(dShow);
+                        selectedEmpStrings.setText(empNames.toString());
                     }
                 }
             }
         }
     }
-
 }
+
+
+

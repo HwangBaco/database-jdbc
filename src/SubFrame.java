@@ -88,7 +88,7 @@ class SubFrame extends JFrame implements ActionListener {
                 try {
                     jdbc.insertEmployeeData(fields, sexCategory);
                     JOptionPane.showMessageDialog(this, "직원 정보 추가 성공");
-                    dispose();
+
                 } catch (SQLIntegrityConstraintViolationException sqlIntegrityException) {
                     JOptionPane.showMessageDialog(this, "개체 무결성 위반 : 동일한 값을 가진 키가 이미 존재합니다!!");
                 } catch (MysqlDataTruncation mysqlDataTruncation) {
@@ -97,6 +97,7 @@ class SubFrame extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
                 } finally {
                     jdbc.disconnectJDBC();
+                    dispose();
                 }
             }
         }
