@@ -13,25 +13,27 @@ public class JDBCRetrieveEmployeeData {
 
     // 기본 Select, From문과 attribute 이름을 DB와 동일시하기 위해 매핑할 HashMap
     private final String baseSelectClause = "SELECT ";
-    private final String baseFromClause = " FROM Employee ";
+    private final String baseFromClause = " FROM Employee as e ";
     private final String baseWhereCluase = " WHERE ";
     private final String[] koreanAttributeNames = {"전체", "이름",  "생년월일", "주소", "성별", "연봉", "상사", "부서"};
-    private final String[] attributeNames = {"", "whereName", "Bdate", "Address", "Sex", "Salary", "Super_ssn", "Dname"};
+    private final String[] attributeNames = {"", "whereName", "Bdate", "Address", "Sex", "Salary", "Supervisor", "Dname"};
     private final HashMap<String,String> attributeMap = new HashMap<>();
 
     // JFrame에서의 attribute 이름과 DB에서의 attribute를 일치하기 위해 매핑 정보 추가
     // (두 환경의 attribute 이름이 다른 경우에 대해서만 추가하였음)
     public JDBCRetrieveEmployeeData(){
-        attributeMap.put("Name", "CONCAT(Fname, ' ', Minit, ' ', Lname) AS Name");
-        attributeMap.put("Supervisor", "Super_ssn");
+        attributeMap.put("Name", "CONCAT(e.Fname, ' ', e.Minit, ' ', e.Lname) AS Name");
+        attributeMap.put("Supervisor", "CONCAT(s.Fname, ' ', s.Minit, ' ', s.Lname) AS Supervisor");
         attributeMap.put("Department", "Dname");
         // join condition이 필요한 경우
-        attributeMap.put("Dname", "Join Department on Dno = Dnumber");
+        attributeMap.put("Super_ssn", "left outer Join Employee as s on e.super_ssn=s.ssn ");
+        attributeMap.put("Dname", "Join Department on e.Dno = Dnumber");
         // 한글 이름의 attribute들을 실제 attribute 이름으로 매핑
         for(int i = 0; i < attributeNames.length; i++){
             attributeMap.put(koreanAttributeNames[i], attributeNames[i]);
         }
-        attributeMap.put("whereName", "CONCAT(Fname, ' ', Minit, ' ', Lname)");
+        attributeMap.put("whereSupervisor", "CONCAT(s.Fname, ' ', s.Minit, ' ', s.Lname)");
+        attributeMap.put("whereName", "CONCAT(e.Fname, ' ', e.Minit, ' ', e.Lname)");
     }
 
     // attribute가 Dname, 혹은 Sex인 경우 해당 변수에 맞는 값에서 가져오고 아니라면 text에 있는 내용을 가져옴
@@ -73,9 +75,11 @@ public class JDBCRetrieveEmployeeData {
                     // 매핑된 정보가 dname인 경우 department table과의 join이 필요하므로 추가
                     if(tmpAttribute.equals(attributeMap.get("Department"))){
                         fromClause += attributeMap.get("Dname");
+                    } else if (tmpAttribute.equals(attributeMap.get("Supervisor"))) {
+                        fromClause += attributeMap.get("Super_ssn");
                     }
                     attributes.add(tmpAttribute);
-                } else attributes.add(j.getText());
+                } else attributes.add("e." + j.getText());
             }
         }
         // 선택된 attributes 들을 join하여 select 절에 추가
@@ -83,8 +87,12 @@ public class JDBCRetrieveEmployeeData {
 
         // parameter 값을 토대로 where절 완성
         if(!attribute.isBlank() && !condition.isBlank()){
-            if(attribute.equals("Salary")) whereClause = baseWhereCluase + attribute + " >= " + "\"" + condition + "\"";
-            else whereClause = baseWhereCluase + attribute + " = " + "\"" + condition + "\"";
+            if (attribute.equals("CONCAT(e.Fname, ' ', e.Minit, ' ', e.Lname)")) whereClause = baseWhereCluase + attribute + " = " + "\"" + condition + "\"";
+            else if(attribute.equals("Salary")) whereClause = baseWhereCluase + "e." + attribute + " >= " + "\"" + condition + "\"";
+            else if(attribute.equals("Supervisor")) whereClause = baseWhereCluase + attributeMap.get("where"+attribute) + " = " + "\"" + condition + "\"";
+            else if(attribute.equals("Dname")) whereClause = baseWhereCluase + attribute + " = " + "\"" + condition + "\"";
+
+            else whereClause = baseWhereCluase + "e." + attribute + " = " + "\"" + condition + "\"";
         }
         //System.out.println("Generated Query : " + selectClause + fromClause + whereClause);
         return selectClause + fromClause + whereClause;

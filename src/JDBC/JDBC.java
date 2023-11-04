@@ -22,13 +22,14 @@ public class JDBC {
         jdbcUpdateEmployeeData = new JDBCUpdateEmployeeData();
     }
 
-    public void connectJDBC() {
+    public Connection connectJDBC() {
         try {
             conn = jdbcConnect.getConnection();
         } catch (SQLException e){
             System.out.println("데이터베이스와 연결되지 않았습니다! 변수를 확인해주세요!");
             e.printStackTrace();
         }
+        return conn;
     }
 
     public void disconnectJDBC(){

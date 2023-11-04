@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.sql.*;
 
+import static src.LoginFrame.*;
 import static src.Main.*;
 
 class SubFrame extends JFrame implements ActionListener {
@@ -27,7 +28,6 @@ class SubFrame extends JFrame implements ActionListener {
 
 
     public SubFrame() {
-        super("직원 등록");
         setSize(500, 500);
         setLocation(350, 50);
 
@@ -88,16 +88,15 @@ class SubFrame extends JFrame implements ActionListener {
                 try {
                     jdbc.insertEmployeeData(fields, sexCategory);
                     JOptionPane.showMessageDialog(this, "직원 정보 추가 성공");
-
+                    dispose();
                 } catch (SQLIntegrityConstraintViolationException sqlIntegrityException) {
                     JOptionPane.showMessageDialog(this, "개체 무결성 위반 : 동일한 값을 가진 키가 이미 존재합니다!!");
                 } catch (MysqlDataTruncation mysqlDataTruncation) {
-                    JOptionPane.showMessageDialog(this, "날짜 값이 유효하지 않습니다!!");
+                    JOptionPane.showMessageDialog(this, "직원 정보 추가 실패 : 유효하지 않은 값입니다.");
                 } catch (SQLException SQLException) {
                     JOptionPane.showMessageDialog(this, "직원 정보 추가 실패");
                 } finally {
                     jdbc.disconnectJDBC();
-                    dispose();
                 }
             }
         }
