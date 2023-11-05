@@ -15,8 +15,8 @@ public class JDBCUpdateEmployeeData {
         attributeMap.put("Name", "Fname Minit Lname");
         attributeMap.put("Supervisor", "Super_ssn");
         attributeMap.put("Department", "Dno");
-        attributeMap.put("Dno", "SELECT Dnumber FROM Department WHERE Dname = ");
-        attributeMap.put("Ssn", "SELECT Super_ssn FROM Employee WHERE Ssn = ");
+        attributeMap.put("selectDno", "SELECT Dnumber FROM Department WHERE Dname = ");
+        attributeMap.put("selectSuperSsn", "SELECT Super_ssn FROM Employee WHERE Ssn = ");
     }
 
     private String parseCondition(String attribute, JTextField text, JComboBox<String> sex, JComboBox<String> department){
@@ -63,12 +63,13 @@ public class JDBCUpdateEmployeeData {
         String whereClause = baseWhereClause;
 
         if(setAttribute.equals("Dno")){
-            String tmpDno = findAttribute("Dno", setCondition, conn);
+            String tmpDno = findAttribute("selectDno", setCondition, conn);
             if(tmpDno == null) throw new SQLDataException();
             setClause += setAttribute + " = " + tmpDno;
         } else if(setAttribute.equals(attributeMap.get("Name")) || setAttribute.equals(attributeMap.get("Supervisor"))){
+            // 수정하려는 값이 Supervisor일 경우 자신의 Ssn을 이용하여 Supervisor의 Ssn값을 찾는다.
             if(setAttribute.equals(attributeMap.get("Supervisor"))){
-                ssn = findAttribute("Ssn", ssn, conn);
+                ssn = findAttribute("selectSuperSsn", ssn, conn);
             }
             String parsedName = parseName(attributeMap.get("Name"), setCondition);
             if(parsedName == null) throw new SQLDataException();
